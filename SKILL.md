@@ -38,6 +38,11 @@ Load `references/workflow-steps.md` for full execution detail.
 2. Check existing doc coverage for every changed symbol (Step 2.5 in workflow-steps.md)
 3. Check for README candidate sections via symbol-name grep (Step 2.5 Check 2)
 4. Classify with two-factor + ownership test (Step 2 in workflow-steps.md)
+ 
+    Example (decorator-only contract change):
+    Before: a documented `fetch_user(id)` has no deprecation signal; signature unchanged.
+    After: add `@deprecated("Use get_user")` to the same function.
+    Expected: update the `fetch_user` docstring to surface deprecation; if README mentions it, flag `[NEEDS HUMAN REVIEW]` and propose-only (never auto-write README).
 5. If `--apply`: auto-write docstrings; propose README updates (never auto-write markdown)
 6. Verify every edit with `references/verify-steps.md`
 7. Report in unified format: Updated / Proposed / Flagged / Missing Coverage / Skipped
@@ -48,10 +53,17 @@ A symbol is in scope when **both** conditions are true:
 1. It already has a docstring or README mention (previously documented)
 2. Its code changed
 
+This skill handles Python, TypeScript, JavaScript, Go, Rust, Ruby, Java, and Kotlin. Docstring formats vary by language — match the existing style exactly.
+
 **The binding vote principle**: past documentation is a vote on importance.
 A trivial 1-line body change in a documented function is in scope.
 A trivial 1-line change in an undocumented function is not.
 Visibility (public/private/internal) is irrelevant — only prior documentation is.
+
+Example (binding vote, body-only semantic drift):
+Before: docstring says "validates three conditions"; signature unchanged.
+After: body changes to validate four conditions.
+Expected: update only the stale docstring sentence to "four conditions"; do not touch unrelated docs.
 
 ## Ownership Rule
 

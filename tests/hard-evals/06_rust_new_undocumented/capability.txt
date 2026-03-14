@@ -1,0 +1,1 @@
+Report missing documentation coverage for new Rust public functions without creating any new docstrings or README entries.
