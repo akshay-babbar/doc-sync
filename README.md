@@ -262,6 +262,7 @@ doc-coauthoring/
 ├── PRESERVATION.md            # Public social contract
 ├── README.md                  # This file
 ├── tile.json                  # Tessl tile configuration
+├── evals/                     # Tessl evaluation scenarios
 ├── scripts/
 │   ├── get_diff.sh            # Git diff → changed documented symbols
 │   └── convert.sh             # SKILL.md → Cursor/Windsurf formats
@@ -270,7 +271,7 @@ doc-coauthoring/
 │   ├── scope-bounds.md        # What the skill will NOT touch
 │   └── verify-steps.md        # 3-point verification checklist
 └── tests/
-    └── evals/                 # Tessl evaluation scenarios
+    └── preflight.sh           # Validate evals/ scenario structure
 ```
 
 **Architecture note**: `SKILL.md` is a lean router (~200 tokens). Heavy content
