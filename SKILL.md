@@ -1,15 +1,15 @@
 ---
 name: doc-coauthoring
 description: >
-  Updates inline docstrings and README sections when a documented symbol's
-  contract changes (parameters, return type, new or removed symbol). Invoke
-  after commits that change function signatures. Auto-writes docstrings only.
-  README updates are always propose-first and require explicit user approval
-  before any markdown edit is applied. Preserves all
-  human-authored content. Never modifies tutorials, changelogs, or ADRs.
-  Use /doc-coauthoring --dry-run to preview, /doc-coauthoring --apply to
-  write patches. Auto-invocable by Claude for dry-run detection; only writes
-  files when --apply is explicitly passed.
+  Keeps docstrings and README sections accurate after code changes. Use this
+  whenever a function signature changed, a parameter was added or removed, a
+  return type changed, or a symbol was renamed or deleted — and the documentation
+  needs to match. Also trigger when users say "update the docs", "sync docs after
+  my refactor", "my API changed", "fix the docstring", "check if my docs are still
+  accurate", or anything indicating docs may be out of date after a code change.
+  Always shows a full proposal report first and asks for confirmation before
+  writing anything. README edits always require explicit approval — never
+  auto-applied.
 compatibility: Designed for Claude Code CLI, OpenCode, Windsurf, and Cursor. Some enforcement features (hooks, allowed-tools) are Claude Code specific.
 license: Apache-2.0
 metadata:
@@ -40,7 +40,7 @@ Arguments are available as `$ARGUMENTS`. Default to dry-run when empty.
 
 ## Workflow
 
-Load `references/workflow-steps.md` for full execution detail.
+**Load timing:** After Step 1 completes and returns results, load `references/workflow-steps.md` before proceeding to Step 2. Do not load at startup — only when actively executing the workflow.
 
 1. Run `scripts/get_diff.sh $ARGUMENTS` to detect changes (default: all uncommitted)
 2. Check existing doc coverage for every changed symbol (Step 2.5 in workflow-steps.md)
@@ -73,7 +73,7 @@ Before: docstring says "validates three conditions"; signature unchanged.
 After: body changes to validate four conditions.
 Expected: update only the stale docstring sentence to "four conditions"; do not touch unrelated docs.
 
-## Ownership Rule
+## Ownership Rule (canonical — other files reference this)
 
 ```
 Docstring in source file       → auto-write always

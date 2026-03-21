@@ -39,6 +39,8 @@ to its callers inside the codebase, even if it is never exported.
 
 ## Markdown Files — Propose-First
 
+See **SKILL.md § Ownership Rule** for the canonical ownership definition.
+
 All README and markdown documentation updates are **propose-first**. The skill
 finds symbol mentions in code spans (`` `fn_name` ``) and table cells, generates
 a proposed patch, and includes it in the report for human review. Any attempt
@@ -77,13 +79,14 @@ API reference here      ← PROPOSE-FIRST (if code span match found; apply requi
 Within docstrings, only modify:
 - Parameter descriptions for changed parameters
 - Return type descriptions for changed returns
-- Symbol descriptions for new symbols
+- Minimal symbol description lines when code adds a machine-verifiable caller-visible signal
+- Falsifiable quantitative statements that became wrong after a body-only change
 
 Never modify:
 - Examples (even if outdated)
 - Notes/warnings
 - See-also references
-- Deprecation notices (flag for review instead)
+- Human rationale or migration prose beyond the minimal mechanical update
 
 ### Behavioral Documentation
 
@@ -97,19 +100,16 @@ def calculate_tax(amount: float) -> float:
     """
 ```
 
-Flag as `[NEEDS HUMAN REVIEW]` — behavioral changes require human judgment.
+Only auto-update mechanical claims the code now falsifies directly, such as
+"validates three conditions" when the implementation now validates four.
+If the change requires interpretation (performance, policy, tax brackets,
+security posture, pedagogy), flag it as `[NEEDS HUMAN REVIEW]`.
 
-## Symbols Never Documented
+## Symbols Without Prior Documentation
 
-| Symbol Type | Reason |
-|-------------|--------|
-| `_private_func` | Private by convention |
-| `__dunder__` | Magic methods, well-documented elsewhere |
-| `_ClassName` | Internal class |
-| Functions in `test_*.py` | Test code, not API |
-| Functions in `*_test.go` | Test code, not API |
-| `internal/` directory | Go internal packages |
-| `_internal/` directory | Python internal packages |
+Any symbol without an existing docstring or README mention is out of scope for
+auto-writing, including private/internal/test-only symbols. Report "Missing
+coverage" or skip per the ownership rule, but do not create new documentation.
 
 ## Operations Never Performed
 
@@ -139,7 +139,8 @@ Do NOT promote them to public documentation or add README entries.
 If `old_name` → `new_name`:
 - Do NOT auto-update references
 - Flag as `[NEEDS HUMAN REVIEW]`
-- Report: "Symbol renamed from `old_name` to `new_name`. Documentation references may need manual update."
+- Treat rename detection as manual review; `get_diff.sh` does not infer renames mechanically
+- Report: "Possible rename from `old_name` to `new_name`. Documentation references may need manual update."
 
 ### Moved Symbols
 
@@ -151,9 +152,9 @@ If function moved between files:
 ### Deprecated Symbols
 
 If `@deprecated` or `@obsolete` added:
-- Do NOT modify existing docs
-- Flag as `[NEEDS HUMAN REVIEW]`
-- Report: "Symbol `func` marked deprecated. Documentation may need deprecation notice."
+- Update the inline docstring minimally to surface deprecation and the replacement if code provides one
+- Do NOT rewrite examples, warnings, or migration prose
+- Flag README mentions as `[NEEDS HUMAN REVIEW]`; only propose a markdown patch when the mention is an exact code-span or table-cell match
 
 ### Generic Type Changes
 

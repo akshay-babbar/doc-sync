@@ -94,7 +94,6 @@ declare -a ADDED_PARAMS=()
 declare -a CHANGED_RETURNS=()
 declare -a NEW_FUNCTIONS=()
 declare -a REMOVED_SYMBOLS=()
-declare -a RENAMED_SYMBOLS=()
 declare -a INTERNAL_ONLY=()
 
 # Process each changed file
@@ -117,8 +116,8 @@ while IFS= read -r file; do
             # Python: match both module-level (col 0) AND indented class methods.
             # Any function/class with an existing docstring is in scope regardless
             # of visibility — private methods with docstrings drift too.
-            FUNC_PATTERN='^[-+][ \t]*def [a-zA-Z][a-zA-Z0-9_]*\('
-            CLASS_PATTERN='^[-+][ \t]*class [a-zA-Z][a-zA-Z0-9_]*'
+            FUNC_PATTERN='^[-+][ \t]*def [_a-zA-Z][_a-zA-Z0-9]*\('
+            CLASS_PATTERN='^[-+][ \t]*class [_a-zA-Z][_a-zA-Z0-9]*'
             PRIVATE_PATTERN='^[-+][ \t]*(def|class) _'
             RETURN_PATTERN='-> [a-zA-Z]'
             ;;
@@ -247,6 +246,52 @@ while IFS= read -r file; do
         INTERNAL_ONLY+=("$file: internal changes only")
     fi
     
+    # --- Second pass: private/internal functions with docstring indicators ---
+    # The binding vote principle: visibility is irrelevant; if documented, it's in scope.
+    # The patterns above only catch exported symbols for JS/TS and Go.
+    # This pass catches private/internal functions that have docstring comments nearby.
+    case "$EXT" in
+        js|ts|jsx|tsx)
+            # Look for non-exported function definitions near JSDoc (/** ... */) in the diff
+            # Match: any function/const/let without 'export' that is added or changed
+            PRIV_FUNCS=$(echo "$ADDED_LINES" | grep -E '^[+][ \t]*(async )?(function [a-zA-Z]|const [a-zA-Z][a-zA-Z0-9_]* *= *(async )?\()' | grep -vE '^[+]export ' || true)
+            if [ -n "$PRIV_FUNCS" ]; then
+                # Check if the diff context contains JSDoc indicators near these functions
+                HAS_JSDOC=$(echo "$FILE_DIFF" | grep -c '/\*\*' || true)
+                if [ "$HAS_JSDOC" -gt 0 ]; then
+                    while IFS= read -r line; do
+                        [ -z "$line" ] && continue
+                        FNAME=$(echo "$line" | sed -E 's/^[+][ \t]*(async )?function ([a-zA-Z_][a-zA-Z0-9_]*).*/\2/; s/^[+][ \t]*(const|let) ([a-zA-Z_][a-zA-Z0-9_]*) *=.*/\2/')
+                        if [[ ! " ${NEW_FUNCTIONS[*]+${NEW_FUNCTIONS[*]}} " =~ " $file: $FNAME " ]] && \
+                           [[ ! " ${ADDED_PARAMS[*]+${ADDED_PARAMS[*]}} " =~ " $file: $FNAME " ]]; then
+                            ADDED_PARAMS+=("$file: $FNAME (documented-private)")
+                            CHANGES_FOUND=1
+                        fi
+                    done <<< "$PRIV_FUNCS"
+                fi
+            fi
+            ;;
+        go)
+            # Look for unexported (lowercase) functions near godoc comments in the diff
+            PRIV_GO_FUNCS=$(echo "$ADDED_LINES" | grep -E '^[+]func [a-z][a-zA-Z0-9]*\(|^[+]func \([a-zA-Z].*\) [a-z][a-zA-Z0-9]*\(' || true)
+            if [ -n "$PRIV_GO_FUNCS" ]; then
+                # Check if the diff context contains godoc-style comments
+                HAS_GODOC=$(echo "$FILE_DIFF" | grep -cE '^[ \t]*// [a-z]' || true)
+                if [ "$HAS_GODOC" -gt 0 ]; then
+                    while IFS= read -r line; do
+                        [ -z "$line" ] && continue
+                        FNAME=$(echo "$line" | sed -E 's/^[+]func ([a-z][a-zA-Z0-9]*).*/\1/; s/^[+]func \(.*\) ([a-z][a-zA-Z0-9]*).*/\1/')
+                        if [[ ! " ${NEW_FUNCTIONS[*]+${NEW_FUNCTIONS[*]}} " =~ " $file: $FNAME " ]] && \
+                           [[ ! " ${ADDED_PARAMS[*]+${ADDED_PARAMS[*]}} " =~ " $file: $FNAME " ]]; then
+                            ADDED_PARAMS+=("$file: $FNAME (documented-private)")
+                            CHANGES_FOUND=1
+                        fi
+                    done <<< "$PRIV_GO_FUNCS"
+                fi
+            fi
+            ;;
+    esac
+    
 done < <(git diff "$COMMIT_RANGE" --name-only)
 
 # Output results
@@ -255,7 +300,7 @@ echo ""
 
 if [ $CHANGES_FOUND -eq 0 ]; then
     echo -e "${GREEN}✓ No caller-visible contract changes detected.${NC}"
-    echo "  Only internal refactors or private symbol changes found."
+    echo "  Only internal refactors or out-of-scope changes found."
     if [ ${#INTERNAL_ONLY[@]} -gt 0 ]; then
         echo ""
         echo "  Internal changes in:"
@@ -295,6 +340,13 @@ if [ ${#REMOVED_SYMBOLS[@]} -gt 0 ]; then
     for item in "${REMOVED_SYMBOLS[@]}"; do
         echo "  - $item"
     done
+    echo ""
+fi
+
+if [ ${#NEW_FUNCTIONS[@]} -gt 0 ] && [ ${#REMOVED_SYMBOLS[@]} -gt 0 ]; then
+    echo -e "${YELLOW}[NOTE] Rename detection is manual:${NC}"
+    echo "  get_diff.sh does not infer renames mechanically. Review added + removed"
+    echo "  symbol pairs manually and flag possible renames or moves for human review."
     echo ""
 fi
 

@@ -4,7 +4,7 @@ A universal agentic skill that updates inline docstrings and proposes README
 updates when a **documented symbol's** contract changes. Conservative by design:
 patches what changed, proposes what might need updating, flags what's uncertain.
 
-Works on any repo out of the box. No setup required. No markers to maintain.
+Works on any repo out of the box. No setup required.
 
 Scope: any symbol that already has a docstring or README mention —
 public, private, or internal. Documentation drift does not respect visibility.
@@ -23,16 +23,10 @@ public, private, or internal. Documentation drift does not respect visibility.
 - ✅ Reports missing documentation coverage
 - ✅ Preserves all human-authored content — runs forked, isolated from conversation
 
-## Ownership Model
+See **SKILL.md § Ownership Rule** for the full canonical definition.
 
-```
-Docstring in source file      → auto-write (no setup needed)
-Markdown code span match      → propose-first (shown in report; apply requires explicit approval)
-No documentation found        → report only, nothing created
-```
-
-Docstrings are symbol-local and unambiguous — safe to auto-write.
-README content is human-authored territory — always require explicit approval before applying edits.
+In short: docstrings are auto-written, README changes are proposed-first and
+require explicit approval, prose-only mentions are skipped.
 
 ## What It Does NOT Do
 
@@ -44,7 +38,7 @@ README content is human-authored territory — always require explicit approval 
 - ❌ No external API calls — zero network dependencies
 - ❌ No pip/npm dependencies — pure shell + markdown
 
-## V1 Known Limitations
+## Known Limitations
 
 ### Trust-on-Prompt Write Boundary
 
@@ -53,12 +47,13 @@ workspace. The ownership rules (docstrings = auto-write, README = propose-first)
 are enforced by **prompt instructions**, not by a hard filesystem permission
 boundary.
 
-For V1 this is acceptable because:
+This is acceptable because:
 - Dry-run is the default — no writes without explicit `--apply`
 - Markdown edits require explicit approval
 - The skill runs in a forked context, isolated from conversation
 
-Claude Code and OpenCode can enforce this mechanically via their permission systems.
+Claude Code and OpenCode can enforce the markdown boundary mechanically through
+their native hook / permission systems. Windsurf and Cursor remain prompt-based.
 
 ### Body-Only Change Detection is Model-Dependent
 
@@ -66,52 +61,85 @@ The "body-only change in a documented function" case (Step 2.5) requires the
 model to compare the existing docstring description to the new code behavior
 and judge whether they conflict.
 
-This is the most subjective step. Expected behavior by model:
+V3 adds a mechanical pre-filter (checking for quantitative claims like "validates
+three conditions" that are now false), but the semantic fallback is still model-dependent.
+Expected behavior by model:
 - **Claude Opus/Sonnet**: reliable, will catch most semantic drift
 - **Claude Haiku**: may skip some body-change updates
 - **Other models**: untested, results may vary
 
 If body-only detection matters for your workflow, use Sonnet or higher.
 
-## Installation
+### Platform Enforcement Differences
 
-Works on any repo out of the box. No setup required.
+| Platform | Markdown Protection | Mechanism |
+|----------|--------------------|-----------|
+| Claude Code | **Mechanical** | `PreToolUse` hook in `SKILL.md` calls `scripts/block_markdown_writes.sh` for `.md` ask / `.mdx` deny |
+| OpenCode | **Mechanical** | `permission.edit` rules in `opencode.json` set `.md` to `ask` and `.mdx` to `deny` |
+| Windsurf | **Prompt-based + UI** | Generated `AGENTS.md` / skill instructions plus Windsurf's accept/reject UI |
+| Cursor | **Prompt-based + UI** | `.cursor/rules/doc-coauthoring.mdc` instructions plus Cursor's diff UI (`.cursorrules` is legacy) |
 
-### Claude Code
+In Windsurf and Cursor, markdown protection relies on the AI following prompt
+instructions. The platform's accept/reject UI provides a file-level checkpoint,
+but does not substitute for Claude Code's mechanical hook enforcement. The skill's
+V3 apply-mode confirmation checkpoint (show report → ask for explicit yes → then write)
+provides an additional safety layer across all platforms.
+
+### Generated Rule Context Overhead
+
+The `convert.sh` script emits static instruction files for prompt-based platforms.
+Those files can add context overhead on every conversation where they are loaded,
+unlike Claude/OpenCode where the native skill loader can stay lazy. If context
+budget is a concern, keep the generated rule scoped to the repo and invoke the
+skill manually when needed.
+
+## Installation & Invocation
+
+### Tessl.io (Primary Distribution)
 
 ```bash
-npx skills add your-org/doc-coauthoring
+# From skill root
+npx tessl publish
+npx tessl skill review ./
+npx tessl eval run ./evals/
 ```
 
-Or manual installation:
+Tessl install / claim flows depend on your workspace permissions and current
+registry state. Verify the exact distribution command against current Tessl docs
+before publishing public instructions.
+
+### Claude Code (Local Path)
 
 ```bash
 mkdir -p ~/.claude/skills
 cp -r doc-coauthoring ~/.claude/skills/
-```
 
-Invoke with:
-```
-/doc-coauthoring --dry-run       # preview changes (default)
-/doc-coauthoring --apply         # write patches
+# Invoke
+/doc-coauthoring --dry-run     # preview (default)
+/doc-coauthoring --apply       # write with confirmation
 /doc-coauthoring --apply HEAD~3..HEAD  # specify commit range
 ```
 
-### OpenCode
+For truly automatic invocation after every commit, add this to `.git/hooks/post-commit`:
+```bash
+#!/bin/bash
+echo "Running doc-coauthoring dry-run..."
+claude -p "/doc-coauthoring --dry-run"
+```
+Make it executable: `chmod +x .git/hooks/post-commit`
 
-Place the skill in any of OpenCode’s skill search paths (Claude-compatible paths work too):
+### OpenCode (Local Path)
 
 ```bash
 mkdir -p ~/.config/opencode/skills
 cp -r doc-coauthoring ~/.config/opencode/skills/
+
+# Invoke same as Claude Code
+/doc-coauthoring --dry-run
+/doc-coauthoring --apply
 ```
 
-To enforce an explicit veto for markdown edits, set permissions in either:
-- `~/.config/opencode/opencode.json` (global)
-- `opencode.json` (project root)
-
-Example:
-
+For markdown protection in OpenCode, add to `opencode.json` in project root:
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
@@ -128,26 +156,25 @@ Example:
 ### Cursor
 
 ```bash
-# Option 1: Use the conversion script
 cd doc-coauthoring
 ./scripts/convert.sh /path/to/your/project
-# Creates .cursorrules in your project
-
-# Option 2: Manual
-cp doc-coauthoring/.cursorrules /path/to/your/project/
+# Creates .cursor/rules/doc-coauthoring.mdc
+# Also emits .cursorrules for legacy Cursor compatibility
 ```
+
+Prefer `.cursor/rules/doc-coauthoring.mdc`. `.cursorrules` is legacy.
 
 ### Windsurf / Codeium
 
 ```bash
-# Option 1: Use the conversion script
 cd doc-coauthoring
 ./scripts/convert.sh /path/to/your/project
-# Creates .windsurfrules in your project
-
-# Option 2: Copy SKILL.md to workflows
-cp -r doc-coauthoring ~/.codeium/windsurf/skills/
+# Creates AGENTS.md for repo-scoped Cascade instructions
+# Also emits .windsurfrules for legacy compatibility
 ```
+
+Prefer the generated `AGENTS.md`. If your repo already has an `AGENTS.md`, merge
+the generated instructions or use `.agents-entry.md` as a snippet.
 
 ## Usage
 
@@ -208,6 +235,66 @@ bash doc-coauthoring/scripts/get_diff.sh
 
 The skill never deletes documentation. Removal requires human confirmation.
 
+## Testing the Skill (Evals)
+
+### Running Preflight Checks
+
+```bash
+# Verify eval structure is valid before running
+bash tests/preflight.sh
+```
+
+This confirms all eval scenarios have the required `task.md` and `criteria.json` files. Must pass before running evals.
+It validates both `evals/` and `tests/hard-evals/`.
+
+### Running Individual Evals Manually
+
+Each eval in `evals/` and `tests/hard-evals/` has a `task.md` with a setup script embedded. To test a specific scenario:
+
+```bash
+# 1. Create a clean temp directory
+mkdir -p /tmp/eval-test && cd /tmp/eval-test
+
+# 2. Extract and run the setup script from the eval's task.md
+#    (copy the bash block under "FILE: inputs/setup.sh" and run it)
+bash setup.sh
+
+# 3. Install the skill locally
+cp -r /path/to/doc-coauthoring .
+
+# 4. Invoke the skill as the eval specifies
+/doc-coauthoring --dry-run   # or --apply depending on the eval
+
+# 5. Check your output against criteria.json
+#    Each criterion has a description and max_score.
+#    Grade pass/fail for each criterion manually or via Tessl's eval runner.
+```
+
+### Running All Evals via Tessl
+
+```bash
+npx tessl eval run ./evals/
+```
+
+Use the hard-evals as a local quality gate in addition to the public Tessl evals.
+
+### What Good Looks Like
+
+The public evals plus hard-evals cover these critical behaviors:
+
+| Eval | What it Proves |
+|------|---------------|
+| `dry-run-default-no-file-writes` | Skill never writes without --apply |
+| `body-only-drift-proceed-past-exit-code-1` | Skill doesn't stop at script exit 1 |
+| `protected-files-never-modify-changelog` | CHANGELOG and ADRs never touched |
+| `new-documented-symbol-propose-readme` | New symbols generate README proposals |
+| `moved-symbol-flag-for-human-review` | Moves are never auto-handled |
+| `minimal-docstring-edit-preserve-examples` | Existing content preserved |
+| `ruby-docstring-style-match` | Style matching works across languages |
+| `readme-table-cell-match-medium-confidence` | Table cell detection works |
+| `generic-type-alias-change-not-a-contract` | Style-only changes ignored |
+| `java-javadoc-update-param` | Java/Kotlin coverage works |
+
 ## Test Cases
 
 The skill is designed to pass these scenarios:
@@ -229,8 +316,10 @@ doc-coauthoring/
 ├── PRESERVATION.md            # Public social contract
 ├── README.md                  # This file
 ├── tile.json                  # Tessl tile configuration
+├── tessl.json                 # Tessl vendored-source configuration
 ├── evals/                     # Tessl evaluation scenarios
 ├── scripts/
+│   ├── block_markdown_writes.sh  # Claude Code markdown approval hook
 │   ├── get_diff.sh            # Git diff → changed documented symbols
 │   └── convert.sh             # SKILL.md → Cursor/Windsurf formats
 ├── references/
@@ -238,7 +327,9 @@ doc-coauthoring/
 │   ├── scope-bounds.md        # What the skill will NOT touch
 │   └── verify-steps.md        # 3-point verification checklist
 └── tests/
-    └── preflight.sh           # Validate evals/ scenario structure
+    ├── preflight.sh           # Validate evals/ and hard-evals structure
+    ├── hard-evals/            # Stronger publication-review scenarios
+    └── EVIDENCE.md            # Empirical notes and evaluation evidence
 ```
 
 **Architecture note**: `SKILL.md` is a lean router (~200 tokens). Heavy content

@@ -15,6 +15,16 @@ The skill supports two modes via `$ARGUMENTS`:
 **Always default to dry-run when `$ARGUMENTS` is empty or `--dry-run`.**
 Only write files when `--apply` is explicitly passed.
 
+**Apply-mode confirmation checkpoint (mandatory):**
+Even when `--apply` is passed, the workflow is: detect → classify → build the complete Doc Sync Report → **show the report and ask for confirmation** → only proceed to file writes on explicit approval. This ensures the user understands the intent before seeing diffs, regardless of platform.
+
+**Confirmation prompt format (terminal agents — Claude Code, OpenCode):**
+- If **1 change**: `Apply this change? (yes/no)`
+- If **2+ changes**: `Found N changes. Apply all (A), select by number (1, 3, 5...), or skip (S)?`
+- Every entry under Updated/Would Update and Proposed must be numbered in the report so the user can reference them by number.
+- If the user selects by number, only apply those entries. All others are reported as Skipped.
+- In Windsurf/Cursor, the platform's accept/reject UI handles per-change selection at the diff level, so no numbered prompt is needed.
+
 ## Step 1: Detect Contract Changes
 
 ```bash
@@ -65,22 +75,19 @@ then apply the **ownership rule** to determine how changes are delivered:
 | Removed symbol | Any | Flag `[NEEDS HUMAN REVIEW]`, **never delete** | human-review |
 | Renamed symbol | Any | Flag `[NEEDS HUMAN REVIEW]` | human-review |
 
-### Ownership Rule (what determines write mode)
+### Ownership Rule
 
-```
-Docstring in source file          → auto-write always
-Markdown code span match          → propose-first; only apply with explicit user approval
-Prose mention without code span   → skip (low confidence)
-No documentation found            → report-only, nothing created
-```
+See **SKILL.md § Ownership Rule** for the canonical definition. In summary:
+- Docstring in source file → auto-write
+- Markdown code span match → propose-first
+- Prose mention without code span → skip
+- No documentation found → report-only
 
-Docstrings are symbol-local and unambiguous — safe to auto-write.
-README content is human-authored territory — always propose-first, and only
-apply markdown edits with explicit user approval.
+**Body-change staleness check** (mechanical pre-filter, then semantic fallback):
 
-**Body-change nuance**: "Review for staleness" means inspect whether the existing
-docstring description contradicts the new behavior. If it does, update. If the
-docstring is generic (e.g., "Connects to host") and still accurate, skip.
+1. **Mechanical check (always run first):** Does the docstring contain a specific number or quantitative claim (e.g., "validates three conditions", "returns three fields", "retries up to 5 times") that is now falsified by the new code? If yes → update.
+2. **Semantic fallback (only if mechanical check is inconclusive):** Does the docstring description contradict the new behavior? If it does, update. If the docstring is generic (e.g., "Connects to host") and still accurate, skip.
+3. **When in doubt:** Skip. A false negative here (not catching a stale docstring) is recoverable; a false positive (rewriting an accurate docstring incorrectly) is worse.
 
 **The binding vote principle**: past documentation is a binding vote on importance.
 A 1-line change in a documented function is in scope. A 1-line change in an
@@ -140,6 +147,8 @@ Only high and medium confidence matches are included in `CANDIDATE_SECTIONS`.
 
 Result: `CANDIDATE_SECTIONS=[]` or a list of `(file, heading, line)` tuples
 
+**Persistence requirement:** Before proceeding to Step 3, include `CANDIDATE_SECTIONS` in the Doc Sync Report structure (under a `### Proposed` heading with placeholders). This ensures candidate sections survive context window pressure between Step 2.5 and Step 3b. Do not rely on the agent remembering them across steps.
+
 ### Coverage Decision
 
 | HAS_DOCSTRING | CANDIDATE_SECTIONS | Previously Documented? | Write mode |
@@ -166,11 +175,47 @@ three conditions" but now there are four), flag it for update.
 If the description is generic ("Connects to host") and the body change does
 not contradict it, skip — no update needed.
 
-## Step 3: Apply Updates (only if `--apply` mode)
+## Step 3: Apply Updates (only after confirmation in `--apply` mode)
+
+**Prerequisite:** The Doc Sync Report has been shown and the user has confirmed "yes" to apply.
 
 **Order is mandatory — docstrings first, README proposals second.**
 
+**For large batches (>5 symbols):** Before starting writes, record the list of
+pending changes in the report output. If the session is interrupted, the next
+run can reference the report to avoid re-detecting from scratch.
+
 ### 3a. Update Docstrings/JSDoc
+
+**Idempotency guard (mandatory):** Before writing any docstring update, read the
+current docstring state. If the parameter documentation already exists and matches
+the current signature, skip and report "Already current." This prevents duplicate
+entries when `--apply` is run twice on the same uncommitted diff.
+
+**Inferred description marker (mandatory for new descriptions):**
+When the skill writes a **new** parameter or return description that did not
+exist before, the description must be inferred from the parameter name, type,
+and default value. Because this inference may be wrong, append the marker
+`[inferred — verify]` inline to every auto-inferred description.
+
+Example:
+```python
+    Args:
+        host: Hostname or IP.                                     # existing — no marker
+        port: Port number.                                        # existing — no marker
+        timeout: Connection timeout in seconds. Defaults to 30. [inferred — verify]
+```
+
+Rules for the marker:
+- **Add** `[inferred — verify]` to any description the skill writes from scratch
+- **Do NOT add** it to descriptions that already existed and were merely preserved
+  or extended with a known-safe change (e.g., only the default value changed)
+- The marker appears both in the written docstring AND in the report
+- In the report, add a note: "Review `[inferred — verify]` entries — these were
+  inferred from parameter names and may need correction."
+- Once a human verifies or rewrites the description, remove the marker in that
+  same review pass or in the next doc-cleanup edit; verified production docs
+  should not keep the marker indefinitely.
 
 Match existing style exactly. Only change the affected parameter or return:
 
@@ -191,7 +236,7 @@ def connect(host: str, port: int, timeout: int = 30) -> Connection:
     Args:
         host: Hostname or IP.
         port: Port number.
-        timeout: Connection timeout in seconds. Defaults to 30.
+        timeout: Connection timeout in seconds. Defaults to 30. [inferred — verify]
     """
 ```
 
@@ -230,20 +275,27 @@ or skipped, it always appears in the **same diff-style format**. This is non-neg
 — if auto-writes and proposals look structurally different, developers stop trusting
 the output within 2 uses. The only difference is the action verb.
 
-Always output a report regardless of mode:
+Always output a report regardless of mode.
+
+**Numbering rule**: In `--apply` mode, number every entry under Updated/Would Update
+and Proposed sequentially (1, 2, 3...) so the user can reference them in the
+confirmation prompt. In `--dry-run` mode, numbering is optional.
 
 ```
 ## Doc Sync Report
 Mode: dry-run | apply
 
 ### Updated  (auto-write, --apply only; reads "Would Update" in --dry-run)
-- `connect` ─ path/to/file.py:14 ─ docstring
-  + timeout: Connection timeout in seconds. Defaults to 30.
+1. `connect` ─ path/to/file.py:14 ─ docstring
+   + timeout: Connection timeout in seconds. Defaults to 30. [inferred — verify]
 
 ### Proposed  (README sections; apply requires explicit approval)
-- `connect` ─ README.md:47 ─ under heading "## API Reference"
-  ~ Detected code span mention. Proposed patch:
-  [patch shown here in diff format]
+2. `connect` ─ README.md:47 ─ under heading "## API Reference"
+   ~ Detected code span mention. Proposed patch:
+   [patch shown here in diff format]
+
+> **Note:** Review `[inferred — verify]` entries — these were inferred from
+> parameter names and may need correction.
 
 ### Flagged for Human Review
 - `removed_fn` ─ path/to/file.py ─ symbol not found in codebase
@@ -263,8 +315,14 @@ Mode: dry-run | apply
 ✓ No contract changes detected in tracked files. Documentation is current.
 ```
 
+**Confirmation prompt (apply mode only, after showing the report):**
+- 1 change: `Apply this change? (yes/no)`
+- 2+ changes: `Found N changes. Apply all (A), select by number (1, 3, 5...), or skip (S)?`
+- If user selects by number, apply only those entries. Report all others as Skipped.
+
 **Format rules:**
 - Every entry: `` `symbol` ─ file:line ─ what changed ``
 - Action verb changes (`Updated` / `Would Update` / `Proposed`), structure does not
 - Patches always shown in diff format (`+` added, `-` removed, `~` contextual)
 - dry-run: all `Updated` become `Would Update`; `Proposed` stays `Proposed`
+- Entries with `[inferred — verify]` markers must preserve the marker in the report

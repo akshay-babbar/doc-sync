@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # convert.sh — Convert SKILL.md to platform-specific formats
-# Generates .cursorrules and .windsurfrules from the canonical SKILL.md
+# Generates modern Cursor/Windsurf instruction files from the canonical SKILL.md
 #
 # Usage:
 #   ./convert.sh                     # Output to current directory
@@ -51,9 +51,14 @@ if [ -f "$SKILL_DIR/references/verify-steps.md" ]; then
     VERIFY_STEPS=$(cat "$SKILL_DIR/references/verify-steps.md")
 fi
 
-# Generate .cursorrules (Cursor format)
-# Cursor uses a flat markdown file with all instructions
-cat > "$OUTPUT_DIR/.cursorrules" << 'CURSOR_HEADER'
+# Generate Cursor project rule (modern format)
+mkdir -p "$OUTPUT_DIR/.cursor/rules"
+cat > "$OUTPUT_DIR/.cursor/rules/doc-coauthoring.mdc" << 'CURSOR_HEADER'
+---
+description: Doc-coauthoring workflow for documentation drift after code changes
+alwaysApply: false
+---
+
 # Doc-Coauthoring Rules for Cursor
 
 You are a surgical documentation updater. Your job is to patch documentation
@@ -68,30 +73,33 @@ when—and only when—a caller-visible contract changes.
 
 CURSOR_HEADER
 
-echo "$BODY" >> "$OUTPUT_DIR/.cursorrules"
+echo "$BODY" >> "$OUTPUT_DIR/.cursor/rules/doc-coauthoring.mdc"
 
 if [ -n "$SCOPE_BOUNDS" ]; then
-    echo "" >> "$OUTPUT_DIR/.cursorrules"
-    echo "---" >> "$OUTPUT_DIR/.cursorrules"
-    echo "" >> "$OUTPUT_DIR/.cursorrules"
-    echo "$SCOPE_BOUNDS" >> "$OUTPUT_DIR/.cursorrules"
+    echo "" >> "$OUTPUT_DIR/.cursor/rules/doc-coauthoring.mdc"
+    echo "---" >> "$OUTPUT_DIR/.cursor/rules/doc-coauthoring.mdc"
+    echo "" >> "$OUTPUT_DIR/.cursor/rules/doc-coauthoring.mdc"
+    echo "$SCOPE_BOUNDS" >> "$OUTPUT_DIR/.cursor/rules/doc-coauthoring.mdc"
 fi
 
 
 
 if [ -n "$VERIFY_STEPS" ]; then
-    echo "" >> "$OUTPUT_DIR/.cursorrules"
-    echo "---" >> "$OUTPUT_DIR/.cursorrules"
-    echo "" >> "$OUTPUT_DIR/.cursorrules"
-    echo "$VERIFY_STEPS" >> "$OUTPUT_DIR/.cursorrules"
+    echo "" >> "$OUTPUT_DIR/.cursor/rules/doc-coauthoring.mdc"
+    echo "---" >> "$OUTPUT_DIR/.cursor/rules/doc-coauthoring.mdc"
+    echo "" >> "$OUTPUT_DIR/.cursor/rules/doc-coauthoring.mdc"
+    echo "$VERIFY_STEPS" >> "$OUTPUT_DIR/.cursor/rules/doc-coauthoring.mdc"
 fi
 
-echo "Generated: $OUTPUT_DIR/.cursorrules"
+echo "Generated: $OUTPUT_DIR/.cursor/rules/doc-coauthoring.mdc"
 
-# Generate .windsurfrules (Windsurf format)
-# Windsurf uses similar format but with different header conventions
-cat > "$OUTPUT_DIR/.windsurfrules" << 'WINDSURF_HEADER'
-# Doc-Coauthoring Skill
+# Legacy Cursor compatibility
+cp "$OUTPUT_DIR/.cursor/rules/doc-coauthoring.mdc" "$OUTPUT_DIR/.cursorrules"
+echo "Generated: $OUTPUT_DIR/.cursorrules (legacy Cursor compatibility)"
+
+# Generate AGENTS.md (modern Windsurf/Cascade path)
+cat > "$OUTPUT_DIR/AGENTS.md" << 'WINDSURF_HEADER'
+# Doc-Coauthoring Instructions
 
 <doc_coauthoring_skill>
 
@@ -108,23 +116,27 @@ changes. Do NOT activate for general documentation tasks.
 
 WINDSURF_HEADER
 
-echo "$BODY" >> "$OUTPUT_DIR/.windsurfrules"
+echo "$BODY" >> "$OUTPUT_DIR/AGENTS.md"
 
 if [ -n "$SCOPE_BOUNDS" ]; then
-    echo "" >> "$OUTPUT_DIR/.windsurfrules"
-    echo "$SCOPE_BOUNDS" >> "$OUTPUT_DIR/.windsurfrules"
+    echo "" >> "$OUTPUT_DIR/AGENTS.md"
+    echo "$SCOPE_BOUNDS" >> "$OUTPUT_DIR/AGENTS.md"
 fi
 
 
 
 if [ -n "$VERIFY_STEPS" ]; then
-    echo "" >> "$OUTPUT_DIR/.windsurfrules"
-    echo "$VERIFY_STEPS" >> "$OUTPUT_DIR/.windsurfrules"
+    echo "" >> "$OUTPUT_DIR/AGENTS.md"
+    echo "$VERIFY_STEPS" >> "$OUTPUT_DIR/AGENTS.md"
 fi
 
-echo "</doc_coauthoring_skill>" >> "$OUTPUT_DIR/.windsurfrules"
+echo "</doc_coauthoring_skill>" >> "$OUTPUT_DIR/AGENTS.md"
 
-echo "Generated: $OUTPUT_DIR/.windsurfrules"
+echo "Generated: $OUTPUT_DIR/AGENTS.md"
+
+# Legacy Windsurf compatibility
+cp "$OUTPUT_DIR/AGENTS.md" "$OUTPUT_DIR/.windsurfrules"
+echo "Generated: $OUTPUT_DIR/.windsurfrules (legacy Windsurf compatibility)"
 
 # Generate AGENTS.md router entry (for repos using agents.md pattern)
 cat > "$OUTPUT_DIR/.agents-entry.md" << AGENTS_ENTRY
@@ -146,8 +158,10 @@ echo ""
 echo "=== Conversion Complete ==="
 echo "Source:  $SKILL_FILE"
 echo "Outputs:"
-echo "  - .cursorrules    (Cursor AI)"
-echo "  - .windsurfrules  (Windsurf/Codeium)"
+echo "  - .cursor/rules/doc-coauthoring.mdc  (Cursor project rule)"
+echo "  - AGENTS.md                          (Windsurf/Cascade instructions)"
+echo "  - .cursorrules                       (legacy Cursor compatibility)"
+echo "  - .windsurfrules                     (legacy Windsurf compatibility)"
 echo "  - .agents-entry.md (AGENTS.md snippet)"
 echo ""
 echo "Copy the appropriate file to your project root."

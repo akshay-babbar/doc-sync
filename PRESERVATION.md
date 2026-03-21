@@ -41,8 +41,10 @@ do not touch them.
 
 ### 4. Your Deprecation Notices
 
-Deprecation is a policy decision. We flag deprecated symbols for review
-rather than auto-generating deprecation notices.
+Deprecation policy and migration guidance remain human territory. We may add a
+minimal mechanical deprecation line to an existing docstring when code adds an
+explicit deprecation signal, but we do not invent migration prose or rewrite
+examples.
 
 ### 5. Historical Documentation
 
@@ -55,7 +57,8 @@ Only caller-visible contract documentation in **inline docstrings**:
 
 - **Parameter names and types** in docstrings when they change in code
 - **Return types** in docstrings when they change in code
-- **New symbol documentation** (but only structural — name, params, return)
+- **Minimal mechanical status lines** already grounded in code, such as a newly
+  added deprecation signal on an already-documented symbol
 
 All README/markdown changes are **proposed first**, and require explicit
 human approval before they are applied.
@@ -137,4 +140,4 @@ Generated documentation should regenerate automatically from updated sources.
 
 ---
 
-*This contract is versioned with the skill. Current version: 2.0.0*
+*This contract is versioned with the skill. Current version: 3.0.0*
