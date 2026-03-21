@@ -16,7 +16,7 @@ public, private, or internal. Documentation drift does not respect visibility.
 - ✅ Dry-run mode by default — reports what would change without writing files
 - ✅ Apply mode (`--apply`) writes docstring patches after you review the dry-run
 - ✅ **Auto-writes** inline docstrings (symbol-local, unambiguous)
-- ✅ **Proposes-only** README updates — never auto-writes markdown files
+- ✅ README/markdown updates are **propose-first** and require explicit approval before any markdown edit is applied
 - ✅ Discovers README candidate sections via code span matching (`` `fn_name` ``)
 - ✅ Unified diff-style report: same format for auto-writes, proposals, flags, and skips
 - ✅ Flags removed/renamed symbols as `[NEEDS HUMAN REVIEW]`, never auto-deletes
@@ -27,17 +27,17 @@ public, private, or internal. Documentation drift does not respect visibility.
 
 ```
 Docstring in source file      → auto-write (no setup needed)
-Markdown code span match      → propose-only (shown in report, never auto-applied)
+Markdown code span match      → propose-first (shown in report; apply requires explicit approval)
 No documentation found        → report only, nothing created
 ```
 
 Docstrings are symbol-local and unambiguous — safe to auto-write.
-README content is human-authored territory — always propose-only.
+README content is human-authored territory — always require explicit approval before applying edits.
 
 ## What It Does NOT Do
 
 - ❌ No AST parsing — uses pattern matching
-- ❌ No auto-write to markdown files — all README updates are proposals
+- ❌ No markdown edits without explicit approval
 - ❌ No changelog generation — requires release context
 - ❌ No tutorial updates — requires pedagogical judgment
 - ❌ No auto-commit — human must review first
@@ -49,16 +49,16 @@ README content is human-authored territory — always propose-only.
 ### Trust-on-Prompt Write Boundary
 
 The skill uses `allowed-tools: Edit` which permits file edits anywhere in the
-workspace. The ownership rules (docstrings = auto-write, README = propose-only)
+workspace. The ownership rules (docstrings = auto-write, README = propose-first)
 are enforced by **prompt instructions**, not by a hard filesystem permission
 boundary.
 
 For V1 this is acceptable because:
 - Dry-run is the default — no writes without explicit `--apply`
-- All markdown changes are propose-only — never auto-written
+- Markdown edits require explicit approval
 - The skill runs in a forked context, isolated from conversation
 
-Future versions may add path-restricted tool permissions.
+Claude Code and OpenCode can enforce this mechanically via their permission systems.
 
 ### Body-Only Change Detection is Model-Dependent
 
@@ -94,7 +94,35 @@ Invoke with:
 ```
 /doc-coauthoring --dry-run       # preview changes (default)
 /doc-coauthoring --apply         # write patches
-/doc-coauthoring --apply HEAD~3  # specify commit range
+/doc-coauthoring --apply HEAD~3..HEAD  # specify commit range
+```
+
+### OpenCode
+
+Place the skill in any of OpenCode’s skill search paths (Claude-compatible paths work too):
+
+```bash
+mkdir -p ~/.config/opencode/skills
+cp -r doc-coauthoring ~/.config/opencode/skills/
+```
+
+To enforce an explicit veto for markdown edits, set permissions in either:
+- `~/.config/opencode/opencode.json` (global)
+- `opencode.json` (project root)
+
+Example:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permission": {
+    "edit": {
+      "*": "allow",
+      "**/*.md": "ask",
+      "**/*.mdx": "deny"
+    }
+  }
+}
 ```
 
 ### Cursor
@@ -119,67 +147,6 @@ cd doc-coauthoring
 
 # Option 2: Copy SKILL.md to workflows
 cp -r doc-coauthoring ~/.codeium/windsurf/skills/
-```
-
-### GitHub Copilot (VS Code)
-
-```bash
-mkdir -p .github/copilot
-cp doc-coauthoring/SKILL.md .github/copilot/doc-coauthoring.md
-```
-
-### Gemini CLI
-
-```bash
-mkdir -p ~/.gemini/skills
-cp -r doc-coauthoring ~/.gemini/skills/
-```
-
-### OpenAI Codex CLI
-
-```bash
-mkdir -p ~/.codex/skills
-cp -r doc-coauthoring ~/.codex/skills/
-```
-
-### Goose (Block)
-
-```bash
-mkdir -p ~/.config/goose/skills
-cp -r doc-coauthoring ~/.config/goose/skills/
-```
-
-### Roo Code
-
-```bash
-mkdir -p .roo/skills
-cp -r doc-coauthoring .roo/skills/
-```
-
-### Trae
-
-```bash
-mkdir -p .trae/skills
-cp -r doc-coauthoring .trae/skills/
-```
-
-### Amp
-
-```bash
-mkdir -p .amp/skills
-cp -r doc-coauthoring .amp/skills/
-```
-
-### Generic AGENTS.md
-
-Add to your `AGENTS.md`:
-
-```markdown
-## Skills
-
-| Skill | Trigger | Description |
-|-------|---------|-------------|
-| [doc-coauthoring](./doc-coauthoring/SKILL.md) | `/doc-sync`, after API changes | Updates docstrings and proposes README updates |
 ```
 
 ## Usage
@@ -221,7 +188,7 @@ bash doc-coauthoring/scripts/get_diff.sh
       """
 ```
 
-**README update (proposed, not auto-written):**
+**README update (proposed; apply requires explicit approval):**
 ```
 ### Proposed
 - `fetch_user` — README.md:47 — under heading "## API Reference"

@@ -62,7 +62,7 @@ when—and only when—a caller-visible contract changes.
 ## Core Principles
 
 1. **Conservative by default**: Do less and flag more
-2. **Docstrings auto-write, README propose-only**: Never auto-write markdown files
+2. **Docstrings auto-write, README propose-first**: Any markdown edit requires explicit approval
 3. **No guessing**: Flag uncertainty as [NEEDS HUMAN REVIEW]
 4. **Order matters**: Docstrings first, README sections second
 
@@ -134,9 +134,9 @@ cat > "$OUTPUT_DIR/.agents-entry.md" << AGENTS_ENTRY
 |---------|-------------|
 | \`/doc-sync\`, \`/docs\`, after commits changing public APIs | Updates inline docstrings, proposes README updates |
 
-**Constraints**: Never auto-writes markdown files. Flags removals for human review. No auto-commit.
+**Constraints**: Requires explicit approval for markdown edits. Flags removals for human review. No auto-commit.
 
-**Files**: \`doc-coauthoring/SKILL.md\`, \`doc-coauthoring/scripts/get_diff.sh\`
+**Files**: `doc-coauthoring/SKILL.md`, `doc-coauthoring/scripts/get_diff.sh`
 AGENTS_ENTRY
 
 echo "Generated: $OUTPUT_DIR/.agents-entry.md (for AGENTS.md inclusion)"

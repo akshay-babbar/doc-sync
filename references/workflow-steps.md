@@ -53,14 +53,14 @@ then apply the **ownership rule** to determine how changes are delivered:
 | Code change | Previously documented? | Action | Write mode |
 |-------------|------------------------|--------|------------|
 | Added parameter | Yes — has docstring | Update docstring | **auto-write** |
-| Added parameter | Yes — mentioned in README code span | Propose README update | **propose-only** |
+| Added parameter | Yes — mentioned in README code span | Propose README update | **propose-first** |
 | Added parameter | No | Report "Missing coverage" | report-only |
 | Changed return type | Yes — has docstring | Update docstring | **auto-write** |
-| Changed return type | Yes — mentioned in README code span | Propose README update | **propose-only** |
+| Changed return type | Yes — mentioned in README code span | Propose README update | **propose-first** |
 | Changed return type | No | Report "Missing coverage" | report-only |
 | Body-only change | Yes — has docstring | Review docstring; update only if now false/incomplete | **auto-write** if stale |
 | Body-only change | No | Skip entirely | skip |
-| New symbol | Has docstring already | Propose README mention | **propose-only** |
+| New symbol | Has docstring already | Propose README mention | **propose-first** |
 | New symbol | No docstring | Report "Missing coverage" | report-only |
 | Removed symbol | Any | Flag `[NEEDS HUMAN REVIEW]`, **never delete** | human-review |
 | Renamed symbol | Any | Flag `[NEEDS HUMAN REVIEW]` | human-review |
@@ -69,14 +69,14 @@ then apply the **ownership rule** to determine how changes are delivered:
 
 ```
 Docstring in source file          → auto-write always
-Markdown code span match          → propose-only always
+Markdown code span match          → propose-first; only apply with explicit user approval
 Prose mention without code span   → skip (low confidence)
 No documentation found            → report-only, nothing created
 ```
 
 Docstrings are symbol-local and unambiguous — safe to auto-write.
-README content is human-authored territory — always propose-only, regardless
-of whether it has any special markers.
+README content is human-authored territory — always propose-first, and only
+apply markdown edits with explicit user approval.
 
 **Body-change nuance**: "Review for staleness" means inspect whether the existing
 docstring description contradicts the new behavior. If it does, update. If the
@@ -145,7 +145,7 @@ Result: `CANDIDATE_SECTIONS=[]` or a list of `(file, heading, line)` tuples
 | HAS_DOCSTRING | CANDIDATE_SECTIONS | Previously Documented? | Write mode |
 |---------------|---------------------|------------------------|------------|
 | true | any | **Yes** | auto-write docstring |
-| false | non-empty | **Partial** | propose-only to candidate sections |
+| false | non-empty | **Partial** | propose-first to candidate sections |
 | false | empty | **No** | report "Missing coverage" only |
 
 ### Body-Only Change Detection
@@ -204,7 +204,7 @@ Rules:
 ### 3b. Propose README Updates
 
 For each candidate section found in Step 2.5 Check 2, generate a proposed
-patch in diff format. **Never auto-write to markdown files.**
+patch in diff format. Only apply markdown edits with explicit user approval.
 
 ```markdown
 ### Proposed
@@ -240,7 +240,7 @@ Mode: dry-run | apply
 - `connect` ─ path/to/file.py:14 ─ docstring
   + timeout: Connection timeout in seconds. Defaults to 30.
 
-### Proposed  (README sections; never auto-written)
+### Proposed  (README sections; apply requires explicit approval)
 - `connect` ─ README.md:47 ─ under heading "## API Reference"
   ~ Detected code span mention. Proposed patch:
   [patch shown here in diff format]

@@ -4,17 +4,25 @@ description: >
   Updates inline docstrings and README sections when a documented symbol's
   contract changes (parameters, return type, new or removed symbol). Invoke
   after commits that change function signatures. Auto-writes docstrings only.
-  README updates are always propose-only — never auto-written. Preserves all
+  README updates are always propose-first and require explicit user approval
+  before any markdown edit is applied. Preserves all
   human-authored content. Never modifies tutorials, changelogs, or ADRs.
   Use /doc-coauthoring --dry-run to preview, /doc-coauthoring --apply to
   write patches. Auto-invocable by Claude for dry-run detection; only writes
   files when --apply is explicitly passed.
+compatibility: Designed for Claude Code CLI, OpenCode, Windsurf, and Cursor. Some enforcement features (hooks, allowed-tools) are Claude Code specific.
 license: Apache-2.0
 metadata:
   version: "3.0.0"
   author: doc-coauthoring
 allowed-tools: Read Edit Grep Bash
 argument-hint: "[--dry-run | --apply] [commit-range]"
+hooks:
+  PreToolUse:
+    - matcher: "Edit|Write"
+      hooks:
+        - type: command
+          command: "bash \"${CLAUDE_SKILL_DIR}/scripts/block_markdown_writes.sh\""
 ---
 
 # Doc-Coauthoring
@@ -42,8 +50,8 @@ Load `references/workflow-steps.md` for full execution detail.
     Example (decorator-only contract change):
     Before: a documented `fetch_user(id)` has no deprecation signal; signature unchanged.
     After: add `@deprecated("Use get_user")` to the same function.
-    Expected: update the `fetch_user` docstring to surface deprecation; if README mentions it, flag `[NEEDS HUMAN REVIEW]` and propose-only (never auto-write README).
-5. If `--apply`: auto-write docstrings; propose README updates (never auto-write markdown)
+    Expected: update the `fetch_user` docstring to surface deprecation; if README mentions it, flag `[NEEDS HUMAN REVIEW]` and propose-first (only apply markdown edits with explicit user approval).
+5. If `--apply`: auto-write docstrings; propose README updates (only apply markdown edits with explicit user approval)
 6. Verify every edit with `references/verify-steps.md`
 7. Report in unified format: Updated / Proposed / Flagged / Missing Coverage / Skipped
 
@@ -69,13 +77,13 @@ Expected: update only the stale docstring sentence to "four conditions"; do not 
 
 ```
 Docstring in source file       → auto-write always
-Markdown code span match       → propose-only always
+Markdown code span match       → propose-first; only apply with explicit user approval
 Prose mention without code span → skip (low confidence)
 No coverage found              → report-only
 ```
 
 Docstrings are symbol-local and unambiguous — safe to auto-write.
-README content is human-authored territory — always propose-only.
+README content is human-authored territory — always require explicit user approval before applying edits.
 
 See `references/scope-bounds.md` and `references/workflow-steps.md` Step 2.5.
 

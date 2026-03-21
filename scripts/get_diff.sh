@@ -46,10 +46,29 @@ fi
 # Verify commit range is valid
 # For a plain ref like HEAD or HEAD~1, check directly.
 # For a range like HEAD~1..HEAD, check the left side.
-RANGE_CHECK="${COMMIT_RANGE%%.*}"
-if ! git rev-parse --verify "$RANGE_CHECK" > /dev/null 2>&1; then
-    echo "Error: Invalid commit or range: $COMMIT_RANGE" >&2
-    exit 2
+verify_ref() {
+    git rev-parse --verify "$1" > /dev/null 2>&1
+}
+
+if [[ "$COMMIT_RANGE" == *"..."* ]]; then
+    LEFT_REF="${COMMIT_RANGE%%...*}"
+    RIGHT_REF="${COMMIT_RANGE##*...}"
+    if ! verify_ref "$LEFT_REF" || ! verify_ref "$RIGHT_REF"; then
+        echo "Error: Invalid commit or range: $COMMIT_RANGE" >&2
+        exit 2
+    fi
+elif [[ "$COMMIT_RANGE" == *".."* ]]; then
+    LEFT_REF="${COMMIT_RANGE%%..*}"
+    RIGHT_REF="${COMMIT_RANGE##*..}"
+    if ! verify_ref "$LEFT_REF" || ! verify_ref "$RIGHT_REF"; then
+        echo "Error: Invalid commit or range: $COMMIT_RANGE" >&2
+        exit 2
+    fi
+else
+    if ! verify_ref "$COMMIT_RANGE"; then
+        echo "Error: Invalid commit or range: $COMMIT_RANGE" >&2
+        exit 2
+    fi
 fi
 
 echo "=== Contract Change Detection ==="

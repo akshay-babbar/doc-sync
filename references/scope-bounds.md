@@ -37,12 +37,12 @@ to its callers inside the codebase, even if it is never exported.
 | `LICENSE*` | Legal document |
 | `.github/*.md` | Issue/PR templates, community health files |
 
-## Markdown Files — Propose-Only
+## Markdown Files — Propose-First
 
-All README and markdown documentation updates are **propose-only**. The skill
-never auto-writes to markdown files. It finds symbol mentions in code spans
-(`` `fn_name` ``) and table cells, generates a proposed patch, and includes it
-in the report for human review.
+All README and markdown documentation updates are **propose-first**. The skill
+finds symbol mentions in code spans (`` `fn_name` ``) and table cells, generates
+a proposed patch, and includes it in the report for human review. Any attempt
+to apply a markdown edit requires explicit user approval at the time.
 
 ## Symbols Never Auto-Documented (Only Flagged)
 
@@ -55,10 +55,11 @@ The skill updates existing documentation. It never creates from scratch.
 
 ## Content Never Modified
 
-### README Content (All Propose-Only)
+### README Content (Propose-First)
 
 All README and markdown content is human territory. The skill proposes
-updates based on code span matches but never auto-writes:
+updates based on code span matches and only applies changes with explicit
+human approval:
 
 ```markdown
 # Project Name          ← NEVER AUTO-WRITE
@@ -66,7 +67,7 @@ updates based on code span matches but never auto-writes:
 Introduction text...    ← NEVER AUTO-WRITE
 
 ## API Reference        ← NEVER AUTO-WRITE
-API reference here      ← PROPOSE-ONLY (if code span match found)
+API reference here      ← PROPOSE-FIRST (if code span match found; apply requires approval)
 
 ## Contributing         ← NEVER AUTO-WRITE
 ```
@@ -114,7 +115,7 @@ Flag as `[NEEDS HUMAN REVIEW]` — behavioral changes require human judgment.
 
 | Operation | Why Forbidden |
 |-----------|---------------|
-| Auto-write to markdown files | Human territory — propose-only |
+| Apply markdown edits without explicit approval | Human territory — propose-first |
 | Delete documentation | Removal needs human review |
 | Create new doc files | Scope creep, needs human decision |
 | Modify code | Documentation only |

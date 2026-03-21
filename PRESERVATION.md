@@ -14,17 +14,18 @@ historical context, carefully crafted examples — belongs to you. This skill
 exists to update the mechanical parts (signatures, parameter lists, type
 annotations) so you don't have to. It does not exist to replace your voice.
 
-**This skill never auto-writes markdown files.** All markdown updates are
-proposals requiring explicit human approval via `--apply`. Only inline
-docstrings (which are symbol-local and unambiguous) are auto-written.
+**This skill never edits markdown files without explicit human approval.**
+All markdown updates are generated as proposals first, and any attempt to
+apply a markdown edit must be explicitly approved by the user at the time.
+Only inline docstrings (which are symbol-local and unambiguous) are auto-written.
 
 ## What We Protect
 
 ### 1. All README and Markdown Content
 
 All markdown content is human territory. We propose updates to sections
-that mention changed symbols, but we never auto-write to markdown files.
-You review and apply proposed changes yourself.
+that mention changed symbols. If you choose to apply a markdown patch, you
+must explicitly approve it.
 
 ### 2. Your Examples
 
@@ -56,7 +57,8 @@ Only caller-visible contract documentation in **inline docstrings**:
 - **Return types** in docstrings when they change in code
 - **New symbol documentation** (but only structural — name, params, return)
 
-All README/markdown changes are **proposed**, never auto-written.
+All README/markdown changes are **proposed first**, and require explicit
+human approval before they are applied.
 
 ## How We Behave
 
@@ -114,8 +116,9 @@ By maintaining this skill, we agree that:
 
 **Q: Can the skill ever auto-write to my README?**
 
-A: No. All markdown/README updates are propose-only. The skill shows you
-what it would change and you decide whether to apply it.
+A: No. All markdown/README updates are propose-first and require explicit
+approval before they are applied. The skill shows you what it would change
+and you decide whether to apply it.
 
 **Q: What if my documentation style doesn't match what the skill produces?**
 
