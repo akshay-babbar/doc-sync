@@ -1,3 +1,4 @@
+---
 name: doc-sync
 description: >
   Keeps docstrings and README sections accurate after code changes. Use this
@@ -22,6 +23,7 @@ hooks:
       hooks:
         - type: command
           command: "bash \"${CLAUDE_SKILL_DIR}/scripts/block_markdown_writes.sh\""
+---
 
 # Doc Sync
 
