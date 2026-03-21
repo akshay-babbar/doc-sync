@@ -1,0 +1,1 @@
+Detect body-only semantic drift in documented Python functions and update stale docstrings even when the signature is unchanged.

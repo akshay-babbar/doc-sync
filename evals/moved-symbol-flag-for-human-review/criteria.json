@@ -1,0 +1,31 @@
+{
+  "context": "Tests whether the agent correctly handles symbols moved between files: it should flag them as [NEEDS HUMAN REVIEW] because import references may be stale, and must NOT auto-update import examples or delete any documentation.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Human review flagged",
+      "max_score": 35,
+      "description": "doc-sync-report.md contains '[NEEDS HUMAN REVIEW]' for parse_config or sanitize_input indicating the move requires human attention"
+    },
+    {
+      "name": "Move context reported",
+      "max_score": 20,
+      "description": "The report mentions that parse_config (or the functions) were moved from utils.py OR references src/utils.py in the flagged entry"
+    },
+    {
+      "name": "README not auto-updated",
+      "max_score": 25,
+      "description": "README.md still contains the original `parse_config(raw)` and `sanitize_input(value)` entries — the agent did NOT rewrite the import paths or module references in README"
+    },
+    {
+      "name": "Documentation not deleted",
+      "max_score": 10,
+      "description": "The report does NOT say the documentation was deleted or that 'Missing coverage' applies to parse_config — the existing docs are preserved"
+    },
+    {
+      "name": "Unified report format",
+      "max_score": 10,
+      "description": "doc-sync-report.md contains '## Doc Sync Report' as a top-level heading"
+    }
+  ]
+}

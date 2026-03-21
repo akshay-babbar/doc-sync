@@ -1,0 +1,1 @@
+Detect and update docstrings for documented private Python methods when a caller-visible parameter is added, without touching README content.

@@ -1,0 +1,26 @@
+{
+  "context": "Tests whether newly inferred parameter descriptions are marked with '[inferred — verify]' in both the written docstring and the report note.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Marker added to docstring",
+      "max_score": 35,
+      "description": "src/connection.py contains '[inferred — verify]' on the newly added timeout parameter description"
+    },
+    {
+      "name": "Marker preserved in report",
+      "max_score": 30,
+      "description": "doc-sync-report.md contains '[inferred — verify]' in the reported update"
+    },
+    {
+      "name": "Review note included",
+      "max_score": 20,
+      "description": "doc-sync-report.md includes a note telling the user to review '[inferred — verify]' entries"
+    },
+    {
+      "name": "Existing descriptions untouched",
+      "max_score": 15,
+      "description": "The existing host and port descriptions remain unchanged in src/connection.py"
+    }
+  ]
+}

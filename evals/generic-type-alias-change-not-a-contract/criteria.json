@@ -1,0 +1,26 @@
+{
+  "context": "Tests whether the agent correctly identifies that generic type annotation changes (List→list, Dict→dict, Optional→X|None) are NOT contract changes and does NOT update the existing documentation.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "No docstring update proposed",
+      "max_score": 40,
+      "description": "doc-sync-report.md does NOT contain 'Would Update' or 'Updated' for search_records — no documentation change is proposed or applied"
+    },
+    {
+      "name": "Change correctly classified",
+      "max_score": 30,
+      "description": "The report explicitly states that the type annotation change is not a contract change, OR produces a 'No Changes' / 'Skipped' entry for search_records, OR reports nothing to act on"
+    },
+    {
+      "name": "Existing docstring preserved",
+      "max_score": 20,
+      "description": "src/search.py docstring is identical to the baseline (all four Args descriptions and Returns section are unchanged)"
+    },
+    {
+      "name": "Unified report format",
+      "max_score": 10,
+      "description": "doc-sync-report.md contains '## Doc Sync Report' as a top-level heading"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "context": "Tests whether the agent correctly handles a new symbol that already has a JSDoc docstring: it should propose a README mention (not auto-write) because README is human territory, and never write to the markdown file directly.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "README mention proposed",
+      "max_score": 30,
+      "description": "doc-sync-report.md contains a 'Proposed' entry for refreshToken referencing README.md — the agent proposes adding it to the API Reference section"
+    },
+    {
+      "name": "README not auto-written",
+      "max_score": 30,
+      "description": "README.md does NOT contain 'refreshToken' — the agent did NOT auto-write to the markdown file"
+    },
+    {
+      "name": "New symbol with docstring handled",
+      "max_score": 20,
+      "description": "The report does NOT say 'Missing coverage' for refreshToken — it has a docstring so the action is a README proposal, not a missing coverage report"
+    },
+    {
+      "name": "Unified report format",
+      "max_score": 10,
+      "description": "doc-sync-report.md contains '## Doc Sync Report' as a top-level heading"
+    },
+    {
+      "name": "Existing function untouched",
+      "max_score": 10,
+      "description": "The report does NOT propose or apply any changes to validateToken (it was not modified)"
+    }
+  ]
+}

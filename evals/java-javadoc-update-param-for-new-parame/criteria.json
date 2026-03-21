@@ -1,0 +1,36 @@
+{
+  "context": "Tests whether the agent supports Java's Javadoc format and correctly adds a @param entry for the new maxRetries parameter while proposing (not auto-writing) a README update for the code-span mention.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "New @param added",
+      "max_score": 25,
+      "description": "DataService.java Javadoc contains a `@param maxRetries` line documenting the new parameter"
+    },
+    {
+      "name": "Javadoc format used",
+      "max_score": 20,
+      "description": "The added documentation uses `@param maxRetries` format (Javadoc style) — NOT Python docstring or YARD format"
+    },
+    {
+      "name": "Existing @param lines untouched",
+      "max_score": 15,
+      "description": "The existing `@param category` and `@param limit` lines in DataService.java are unchanged"
+    },
+    {
+      "name": "README update proposed",
+      "max_score": 20,
+      "description": "doc-sync-report.md contains a 'Proposed' entry referencing README.md for the fetchByCategory code-span mention"
+    },
+    {
+      "name": "README not auto-written",
+      "max_score": 10,
+      "description": "README.md is unchanged — the agent did NOT auto-write to the markdown file"
+    },
+    {
+      "name": "Unified report format",
+      "max_score": 10,
+      "description": "doc-sync-report.md contains '## Doc Sync Report' as a top-level heading"
+    }
+  ]
+}

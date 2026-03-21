@@ -1,0 +1,9 @@
+{
+  "name": "doc-coauthoring",
+  "mode": "vendored",
+  "dependencies": {
+    "akshay-babbar/doc-coauthoring": {
+      "source": "file:."
+    }
+  }
+}
