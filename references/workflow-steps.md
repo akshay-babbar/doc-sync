@@ -1,6 +1,6 @@
 # Workflow Steps
 
-Detailed execution steps for the doc-coauthoring skill. Load this file
+Detailed execution steps for the doc-sync skill. Load this file
 when executing the workflow. Do not load at startup.
 
 ## Invocation Modes
@@ -9,8 +9,8 @@ The skill supports two modes via `$ARGUMENTS`:
 
 | Mode | Command | Behavior |
 |------|---------|----------|
-| Dry-run (default) | `/doc-coauthoring --dry-run` or `/doc-coauthoring` | Detect and report changes only. No file writes. |
-| Apply | `/doc-coauthoring --apply` | Detect, report, and write docstring patches. Propose README updates. |
+| Dry-run (default) | `/doc-sync --dry-run` or `/doc-sync` | Detect and report changes only. No file writes. |
+| Apply | `/doc-sync --apply` | Detect, report, and write docstring patches. Propose README updates. |
 
 **Always default to dry-run when `$ARGUMENTS` is empty or `--dry-run`.**
 Only write files when `--apply` is explicitly passed.

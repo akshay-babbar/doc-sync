@@ -1,6 +1,6 @@
 # Scope Bounds
 
-This document defines what the doc-coauthoring skill will NOT touch.
+This document defines what the doc-sync skill will NOT touch.
 These boundaries are non-negotiable.
 
 ## What Is In Scope

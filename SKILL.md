@@ -1,5 +1,4 @@
----
-name: doc-coauthoring
+name: doc-sync
 description: >
   Keeps docstrings and README sections accurate after code changes. Use this
   whenever a function signature changed, a parameter was added or removed, a
@@ -14,7 +13,7 @@ compatibility: Designed for Claude Code CLI, OpenCode, Windsurf, and Cursor. Som
 license: Apache-2.0
 metadata:
   version: "3.0.0"
-  author: doc-coauthoring
+  author: doc-sync
 allowed-tools: Read Edit Grep Bash(bash "${CLAUDE_SKILL_DIR}/scripts":*)
 argument-hint: "[--dry-run | --apply] [commit-range]"
 hooks:
@@ -23,18 +22,17 @@ hooks:
       hooks:
         - type: command
           command: "bash \"${CLAUDE_SKILL_DIR}/scripts/block_markdown_writes.sh\""
----
 
-# Doc-Coauthoring
+# Doc Sync
 
 Surgical documentation updater. Patches docs when a documented symbol's
 caller-visible contract changes. Conservative by design: flag more, change less.
 
 ## Invocation
 
-- `/doc-coauthoring` or `/doc-coauthoring --dry-run` — detect and report, **no file writes**
-- `/doc-coauthoring --apply` — detect, report, and write patches
-- `/doc-coauthoring --apply HEAD~3..HEAD` — specify commit range
+- `/doc-sync` or `/doc-sync --dry-run` — detect and report, **no file writes**
+- `/doc-sync --apply` — detect, report, and write patches
+- `/doc-sync --apply HEAD~3..HEAD` — specify commit range
 
 Arguments are available as `$ARGUMENTS`. Default to dry-run when empty.
 
