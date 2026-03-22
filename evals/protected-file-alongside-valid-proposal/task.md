@@ -129,4 +129,4 @@ EOF
 
 ## Output Specification
 
-Produce `doc-sync-report.md` with the full doc-sync report. It must update the `publish_report` docstring, include a propose-only entry for `README.md`, and completely ignore `CHANGELOG.md` (no proposal, no flag, no mention).
+Sync the documentation and write the results to `doc-sync-report.md`. It must update the `publish_report` docstring, include a propose-only entry for `README.md`, and completely ignore `CHANGELOG.md` (no proposal, no flag, no mention).

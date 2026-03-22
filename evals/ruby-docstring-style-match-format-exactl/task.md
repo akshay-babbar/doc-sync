@@ -2,7 +2,7 @@
 
 A Ruby gem team added an optional `encoding` parameter to a core string processing method. The method had an existing `##` YARD-style doc comment, and the team wants the documentation updated to reflect the new parameter. There is no README reference to this particular internal method.
 
-Run the doc-coauthoring skill in `--apply` mode on the latest committed change.
+The team wants the documentation updated. Use `--apply` mode on the latest committed change.
 
 ## Setup
 
@@ -42,4 +42,4 @@ git add -A && git commit -m "add encoding param to normalize"
 
 ## Output Specification
 
-Produce a `doc-sync-report.md` with the full skill output.
+Sync the documentation and write the results to `doc-sync-report.md`.

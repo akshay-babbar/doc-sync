@@ -2,7 +2,7 @@
 
 A data team updated a TypeScript analytics function to return a richer result type. The function has a JSDoc comment. The `README.md` contains a reference table that lists exported functions and their descriptions. The team wants a documentation sync report.
 
-Run the doc-coauthoring skill in `--apply` mode on the latest committed change.
+The team wants a documentation sync report. Use `--apply` mode on the latest committed change.
 
 ## Setup
 
@@ -56,4 +56,4 @@ git add -A && git commit -m "aggregateMetrics now returns MetricsSummary"
 
 ## Output Specification
 
-Produce a `doc-sync-report.md` with the full skill output.
+Sync the documentation and write the results to `doc-sync-report.md`.

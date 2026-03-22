@@ -2,7 +2,7 @@
 
 A backend team reorganized their Python service, moving several utility functions from a flat `utils.py` into a dedicated `core/parsing.py` module as part of a larger code cleanup. The functions kept identical signatures and implementations — they were just relocated. Some of these functions had docstrings and were referenced in `README.md`.
 
-The team wants to run the documentation sync skill to identify any documentation that needs attention as a result of the restructuring. Use `--apply` mode.
+The team wants to identify any documentation that needs attention as a result of the restructuring. Use `--apply` mode.
 
 ## Setup
 
@@ -76,4 +76,4 @@ git add -A && git commit -m "move parsing functions to core module"
 
 ## Output Specification
 
-Produce a `doc-sync-report.md` with the full skill output.
+Sync the documentation and write the results to `doc-sync-report.md`.

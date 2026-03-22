@@ -124,4 +124,4 @@ EOF
 
 ## Output Specification
 
-Run the doc-sync skill on the current working tree and produce `doc-sync-report.md` with the full report. It must update the JSDoc for `formatEventDate` to document `timezone`, and any markdown mention of `formatEventDate` must remain propose-only.
+Sync the documentation for the current working tree and write the results to `doc-sync-report.md`. It must update the JSDoc for `formatEventDate` to document `timezone`, and any markdown mention of `formatEventDate` must remain propose-only.

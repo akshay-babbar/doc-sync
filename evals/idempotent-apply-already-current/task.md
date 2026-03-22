@@ -1,6 +1,6 @@
 # Skip Already-Current Docstrings During Apply Mode
 
-A developer already updated the docstring for a changed parameter before running the skill. The doc-coauthoring skill should detect that the documentation is already current and avoid duplicating the parameter entry when `--apply` is used.
+A developer already updated the docstring for a changed parameter before running the documentation sync. The documentation should be detected as already current, and the parameter entry should not be duplicated when `--apply` is used.
 
 ## Setup
 
@@ -42,4 +42,4 @@ PYEOF
 
 ## Output Specification
 
-Run the doc-coauthoring skill in `--apply` mode and produce a `doc-sync-report.md` with the full output.
+Sync the documentation in `--apply` mode and write the results to `doc-sync-report.md`.

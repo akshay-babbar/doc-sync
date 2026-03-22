@@ -1,6 +1,6 @@
 # Show Full Report Before Apply Confirmation
 
-A backend team added a new parameter to a documented Python function and wants to run the doc-coauthoring skill in `--apply` mode. The skill must still show the complete Doc Sync Report first and then ask for explicit confirmation before any write is performed.
+A backend team added a new parameter to a documented Python function and wants to update the docs using `--apply` mode. The report must be shown first, and explicit confirmation must be requested before any write is performed.
 
 ## Setup
 
@@ -43,4 +43,4 @@ PYEOF
 
 ## Output Specification
 
-Run the doc-coauthoring skill in `--apply` mode and produce a `doc-sync-report.md` containing the full output, including the report and the explicit confirmation prompt shown before any write.
+Sync the documentation in `--apply` mode and write the results to `doc-sync-report.md`, including the report and the explicit confirmation prompt shown before any write.

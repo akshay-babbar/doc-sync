@@ -1,6 +1,7 @@
 # Test fixtures (generated, not committed)
-tests/tmp/
+tests/
 tests/baseline_results.md
 
 *.tar.gz
 test_subject.py
+

@@ -2,7 +2,7 @@
 
 A Node.js SDK team has just added a new exported function to their `auth` module. The function was shipped with a JSDoc comment because the developer wrote docs as part of the PR. The team's `README.md` has an **API Reference** section that lists exported functions, and they want the docs to stay in sync.
 
-Run the doc-coauthoring skill to generate a report for the latest committed change. Since this is part of the release process, use `--apply` mode.
+Update the documentation for the latest committed change. Since this is part of the release process, use `--apply` mode.
 
 ## Setup
 
@@ -61,4 +61,4 @@ git add -A && git commit -m "add refreshToken"
 
 ## Output Specification
 
-Produce a `doc-sync-report.md` with the full skill output.
+Sync the documentation and write the results to `doc-sync-report.md`.

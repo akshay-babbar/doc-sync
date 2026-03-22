@@ -2,7 +2,7 @@
 
 A Python library added a `@deprecated` decorator to a previously documented function without changing its signature. This is a caller-visible contract change (the function is now deprecated) even though the signature is identical. The README references the function in a code span.
 
-Your job is conservative doc coauthoring: update only previously documented symbols whose caller-visible contract changed, never auto-write markdown, and flag uncertainty.
+Your job is to update only previously documented symbols whose caller-visible contract changed, never auto-write markdown, and flag uncertainty.
 
 ## Baseline (committed) state
 
@@ -132,7 +132,7 @@ EOF
 
 ## Output spec
 
-Produce `doc-sync-report.md` containing the full doc-coauthoring style report output. It must:
+Sync the documentation for this change and write the results to `doc-sync-report.md`. It must:
 
 - Update the `fetch_user` docstring to explicitly note the deprecation (minimal change).
 - Flag the README mention of `fetch_user` for human review (do not auto-edit markdown).

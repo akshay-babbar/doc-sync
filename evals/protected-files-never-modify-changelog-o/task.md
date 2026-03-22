@@ -2,7 +2,7 @@
 
 A team maintains a Go service. A core exported function gained a new parameter in the latest commit. The function has a Go-style doc comment. The project also has a `CHANGELOG.md` that documents release history and a `decisions/adr-003-api-design.md` architectural decision record — both mention the function.
 
-Run the doc-coauthoring skill in `--apply` mode to update the source documentation.
+Update the source documentation using `--apply` mode.
 
 ## Setup
 
@@ -66,4 +66,4 @@ git add -A && git commit -m "add timeout param to Connect"
 
 ## Output Specification
 
-Produce a `doc-sync-report.md` with the full skill output.
+Sync the documentation and write the results to `doc-sync-report.md`.

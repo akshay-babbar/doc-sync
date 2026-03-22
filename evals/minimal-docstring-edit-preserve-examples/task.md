@@ -2,7 +2,7 @@
 
 A library team added an optional `timeout` parameter to a frequently used connection function. The function has a detailed Python docstring that includes an Examples section, a Notes section, and a See Also section — all carefully written by the original author.
 
-The team wants only the new parameter documented. Run the doc-coauthoring skill in `--apply` mode on the current working tree.
+The team wants only the new parameter documented. Sync the docs using `--apply` mode on the current working tree.
 
 ## Setup
 
@@ -73,4 +73,4 @@ PYEOF
 
 ## Output Specification
 
-Produce a `doc-sync-report.md` with the full skill output.
+Sync the documentation and write the results to `doc-sync-report.md`.

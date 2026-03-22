@@ -172,4 +172,4 @@ EOF
 
 ## Output Specification
 
-Run the doc-sync skill on the current working tree and produce `doc-sync-report.md` with the full report. It must update the docstring for `build_summary` to document `include_archived`, and it must propose markdown updates for every markdown file that mentions `build_summary` (`README.md`, `docs/usage.md`, and `docs/reference.md`).
+Sync the documentation for the current working tree and write the results to `doc-sync-report.md`. It must update the docstring for `build_summary` to document `include_archived`, and it must propose markdown updates for every markdown file that mentions `build_summary` (`README.md`, `docs/usage.md`, and `docs/reference.md`).

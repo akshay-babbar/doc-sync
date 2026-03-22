@@ -138,4 +138,4 @@ printf '\n# touched by refactor\n' >> config/app.toml
 
 ## Output Specification
 
-Run the doc-sync skill and produce `doc-sync-report.md` with the full report output.
+Sync the documentation and write the results to `doc-sync-report.md`.

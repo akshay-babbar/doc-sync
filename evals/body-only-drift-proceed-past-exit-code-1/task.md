@@ -2,7 +2,7 @@
 
 A platform engineering team tightened the validation logic inside a Python function. The function's signature is completely unchanged — same parameters, same return type — but the implementation now enforces an additional rule. The existing docstring describes the old behavior and is now inaccurate.
 
-The team wants to run the doc-coauthoring skill to catch any stale documentation before shipping. Use `--apply` mode.
+The team wants to catch any stale documentation before shipping. Use `--apply` mode.
 
 ## Setup
 
@@ -63,4 +63,4 @@ PYEOF
 
 ## Output Specification
 
-Run the doc-coauthoring skill and produce a `doc-sync-report.md` with the full output.
+Sync the documentation and write the results to `doc-sync-report.md`.

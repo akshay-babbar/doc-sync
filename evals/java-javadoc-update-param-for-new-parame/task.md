@@ -2,7 +2,7 @@
 
 A Java backend team added an optional `maxRetries` parameter to a public service method. The method already has a Javadoc comment. The project's `README.md` has a Quick Start section that references the method. The team wants to update the documentation.
 
-Run the doc-coauthoring skill in `--apply` mode on the latest committed change.
+The team wants the documentation updated. Use `--apply` mode on the latest committed change.
 
 ## Setup
 
@@ -61,4 +61,4 @@ git add -A && git commit -m "add maxRetries param to fetchByCategory"
 
 ## Output Specification
 
-Produce a `doc-sync-report.md` with the full skill output.
+Sync the documentation and write the results to `doc-sync-report.md`.

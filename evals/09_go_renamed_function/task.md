@@ -135,4 +135,4 @@ EOF
 
 ## Output spec
 
-Produce `doc-sync-report.md` with the full doc-coauthoring style report. It must flag a rename / removal for human review and must not delete or rewrite README entries.
+Sync the documentation for this change and write the results to `doc-sync-report.md`. It must flag the rename / removal for human review and must not delete or rewrite README entries.

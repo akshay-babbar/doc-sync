@@ -74,4 +74,4 @@ EOF
 
 ## Output spec
 
-Produce `doc-sync-report.md` with the full doc-coauthoring style report. It must list `multiply` under Missing Coverage and must not create any new doc comments.
+Check for any documentation that needs updating and write the results to `doc-sync-report.md`. It must list `multiply` under Missing Coverage and must not create any new doc comments.
