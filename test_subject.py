@@ -3,7 +3,7 @@ def get_diff(commit_range: str, include_untracked: bool = False) -> str:
 
     Args:
         commit_range: A valid git ref or range like HEAD~3..HEAD.
-        include_untracked: Whether to include untracked files. Defaults to False. [inferred — verify]
+        include_untracked: Whether to include untracked files. Defaults to False.
 
     Returns:
         Raw diff output as a string.

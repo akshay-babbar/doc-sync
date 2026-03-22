@@ -193,30 +193,25 @@ current docstring state. If the parameter documentation already exists and match
 the current signature, skip and report "Already current." This prevents duplicate
 entries when `--apply` is run twice on the same uncommitted diff.
 
-**Inferred description marker (mandatory for new descriptions):**
+**Inferred description rule (mandatory for new descriptions):**
 When the skill writes a **new** parameter or return description that did not
-exist before, the description must be inferred from the parameter name, type,
-and default value. Because this inference may be wrong, append the marker
-`[inferred — verify]` inline to every auto-inferred description.
+exist before, infer it from the parameter name, type, and default value, then
+write it cleanly. Do **not** embed internal workflow markers in docstrings or
+reports.
 
 Example:
 ```python
     Args:
-        host: Hostname or IP.                                     # existing — no marker
-        port: Port number.                                        # existing — no marker
-        timeout: Connection timeout in seconds. Defaults to 30. [inferred — verify]
+        host: Hostname or IP.
+        port: Port number.
+        timeout: Connection timeout in seconds. Defaults to 30.
 ```
 
 Rules for the marker:
-- **Add** `[inferred — verify]` to any description the skill writes from scratch
-- **Do NOT add** it to descriptions that already existed and were merely preserved
-  or extended with a known-safe change (e.g., only the default value changed)
-- The marker appears both in the written docstring AND in the report
-- In the report, add a note: "Review `[inferred — verify]` entries — these were
-  inferred from parameter names and may need correction."
-- Once a human verifies or rewrites the description, remove the marker in that
-  same review pass or in the next doc-cleanup edit; verified production docs
-  should not keep the marker indefinitely.
+- **Do not add** any internal workflow marker to descriptions the skill writes from scratch
+- **Do not add** any internal workflow marker to descriptions that already existed
+  and were merely preserved or extended with a known-safe change (e.g., only the default value changed)
+- Keep the report human-readable and free of implementation tags
 
 Match existing style exactly. Only change the affected parameter or return:
 
@@ -237,7 +232,7 @@ def connect(host: str, port: int, timeout: int = 30) -> Connection:
     Args:
         host: Hostname or IP.
         port: Port number.
-        timeout: Connection timeout in seconds. Defaults to 30. [inferred — verify]
+        timeout: Connection timeout in seconds. Defaults to 30.
     """
 ```
 
@@ -288,15 +283,12 @@ Mode: dry-run | apply
 
 ### Updated  (auto-write, --apply only; reads "Would Update" in --dry-run)
 1. `connect` ─ path/to/file.py:14 ─ docstring
-   + timeout: Connection timeout in seconds. Defaults to 30. [inferred — verify]
+   + timeout: Connection timeout in seconds. Defaults to 30.
 
 ### Proposed  (README sections; apply requires explicit approval)
 2. `connect` ─ README.md:47 ─ under heading "## API Reference"
    ~ Detected code span mention. Proposed patch:
    [patch shown here in diff format]
-
-> **Note:** Review `[inferred — verify]` entries — these were inferred from
-> parameter names and may need correction.
 
 ### Flagged for Human Review
 - `removed_fn` ─ path/to/file.py ─ symbol not found in codebase
@@ -326,4 +318,4 @@ Mode: dry-run | apply
 - Action verb changes (`Updated` / `Would Update` / `Proposed`), structure does not
 - Patches always shown in diff format (`+` added, `-` removed, `~` contextual)
 - dry-run: all `Updated` become `Would Update`; `Proposed` stays `Proposed`
-- Entries with `[inferred — verify]` markers must preserve the marker in the report
+- Cleanly inferred descriptions should remain clean in both the docstring and the report

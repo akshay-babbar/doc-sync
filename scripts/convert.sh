@@ -67,10 +67,10 @@ parameter documentation already exists and matches the current signature, skip
 and report "Already current." This prevents duplicate entries when `--apply` is
 run twice on the same uncommitted diff.
 
-**Inferred description marker (mandatory for new descriptions):**
+**Inferred description rule (mandatory for new descriptions):**
 When writing a new parameter or return description that did not exist before,
-append `[inferred — verify]` inline. This marker signals the description was
-inferred and needs human verification. Remove after review.
+infer it from the parameter name, type, and default value, then write it cleanly.
+Do not embed internal workflow markers in docstrings or reports.
 
 **Report format (mandatory):**
 ```
@@ -79,7 +79,7 @@ Mode: dry-run | apply
 
 ### Updated / Would Update
 1. `symbol` ─ file:line ─ docstring
-   + param: description [inferred — verify]
+   + param: description
 
 ### Proposed (README; requires explicit approval)
 2. `symbol` ─ README.md:line ─ heading

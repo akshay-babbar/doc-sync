@@ -1,0 +1,26 @@
+{
+  "context": "Agent must correctly process a documented Python classmethod when its signature changes. Baseline models sometimes skip decorated methods or misclassify them as implementation details.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Decorated classmethod updated",
+      "max_score": 40,
+      "description": "The report updates the from_env docstring to document the new profile parameter"
+    },
+    {
+      "name": "Decorator not treated as out of scope",
+      "max_score": 25,
+      "description": "The report does NOT say from_env is skipped, out of scope, or ignored because it is a classmethod/decorated symbol"
+    },
+    {
+      "name": "README not auto-written",
+      "max_score": 20,
+      "description": "The report does NOT claim to have edited README.md directly; markdown remains propose-only"
+    },
+    {
+      "name": "Unified report format used",
+      "max_score": 15,
+      "description": "The output contains '## Doc Sync Report' as the top-level heading"
+    }
+  ]
+}

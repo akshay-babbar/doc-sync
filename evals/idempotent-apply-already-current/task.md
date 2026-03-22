@@ -32,7 +32,7 @@ def fetch(key: str, region: str = "us-east-1") -> str:
 
     Args:
         key: Cache lookup key.
-        region: Cache region to query. Defaults to us-east-1. [inferred — verify]
+        region: Cache region to query. Defaults to us-east-1.
 
     Returns:
         Cached value.
