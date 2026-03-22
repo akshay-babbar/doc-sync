@@ -248,11 +248,10 @@ Rules:
 
 ### 3b. Propose README Updates
 
-Creating a new README entry for a symbol that has no existing
-README mention is ALWAYS propose-first regardless of whether
-the symbol has a docstring. Never write to any markdown file
-without explicit user approval. This applies even when the
-user runs --apply.
+Creating a new README entry is ALWAYS propose-first.
+NEVER write to any markdown file directly even with --apply.
+If you find yourself about to edit a .md file, stop and add
+it to the Proposed section instead. This is absolute.
 
 When a symbol is found in a README section via code span match or table cell:
 1. Identify the minimal line(s) to update.
@@ -277,6 +276,8 @@ See `references/verify-steps.md` for the 3-point checklist:
 Verification is **non-optional**. If a check fails, revert the edit and flag.
 
 ## Step 5: Report Results
+
+Every report — regardless of what was found or not found — MUST begin with ## Doc Sync Report as the top-level heading. This is non-negotiable and applies even when no changes are detected.
 
 **Unified format contract**: whether an entry was auto-written, proposed, flagged,
 or skipped, it always appears in the **same diff-style format**. This is non-negotiable
