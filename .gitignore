@@ -1,3 +1,5 @@
 # Test fixtures (generated, not committed)
 tests/tmp/
 tests/baseline_results.md
+
+*.tar.gz

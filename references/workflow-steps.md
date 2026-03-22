@@ -246,10 +246,16 @@ Rules:
 
 ### 3b. Propose README Updates
 
-Creating a new README entry for a symbol that has no existing README mention is ALWAYS propose-first. It is never auto-written even if the symbol has a docstring. The ownership rule for markdown is absolute: no markdown file is ever written without explicit user approval, including cases where no prior mention exists.
+Creating a new README entry for a symbol that has no existing
+README mention is ALWAYS propose-first regardless of whether
+the symbol has a docstring. Never write to any markdown file
+without explicit user approval. This applies even when the
+user runs --apply.
 
-For each candidate section found in Step 2.5 Check 2, generate a proposed
-patch in diff format. Only apply markdown edits with explicit user approval.
+When a symbol is found in a README section via code span match or table cell:
+1. Identify the minimal line(s) to update.
+2. Generate a proposed patch (unified diff) that updates only those lines.
+Apply markdown edits with explicit user approval.
 
 ```markdown
 ### Proposed

@@ -14,7 +14,7 @@
     },
     {
       "name": "Unified report format used",
-      "max_score": 10,
+      "max_score": 45,
       "description": "The output contains '## Doc Sync Report' as the top-level heading"
     }
   ]

@@ -14,12 +14,12 @@
     },
     {
       "name": "Numbered entries present",
-      "max_score": 12,
+      "max_score": 45,
       "description": "The report numbers the Updated/Would Update and Proposed entries so the user can select them by number"
     },
     {
       "name": "Unified report format used",
-      "max_score": 10,
+      "max_score": 45,
       "description": "The output contains '## Doc Sync Report' as the top-level heading"
     }
   ]

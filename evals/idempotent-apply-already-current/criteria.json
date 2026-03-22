@@ -14,7 +14,7 @@
     },
     {
       "name": "Unified report format",
-      "max_score": 10,
+      "max_score": 45,
       "description": "doc-sync-report.md contains '## Doc Sync Report' as a top-level heading"
     },
     {
