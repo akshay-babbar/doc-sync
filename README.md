@@ -59,6 +59,8 @@ cp -r doc-sync ~/.claude/skills/
 /doc-sync --apply      # write with confirmation
 ```
 
+The markdown protection hook is pre-configured in `.claude/settings.json` and activates automatically when the skill is installed.
+
 For automatic invocation after every commit:
 ```bash
 # .git/hooks/post-commit
