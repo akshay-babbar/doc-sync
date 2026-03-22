@@ -4,17 +4,17 @@
   "checklist": [
     {
       "name": "Missing coverage reported",
-      "max_score": 50,
+      "max_score": 35,
       "description": "The report lists multiply under Missing Coverage section and does NOT create any documentation"
     },
     {
       "name": "No documentation created",
-      "max_score": 30,
+      "max_score": 55,
       "description": "The report does NOT contain '///', 'Proposed', 'Updated', 'Added docstring', or 'Added README' for the multiply function"
     },
     {
       "name": "Unified report format used",
-      "max_score": 20,
+      "max_score": 10,
       "description": "The output contains '## Doc Sync Report' as the top-level heading"
     }
   ]

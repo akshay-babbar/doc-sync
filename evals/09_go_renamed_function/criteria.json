@@ -9,12 +9,12 @@
     },
     {
       "name": "README not auto-rewritten",
-      "max_score": 30,
+      "max_score": 55,
       "description": "The report does NOT contain 'Here is the updated README.md', 'Deleted FetchUser from README', or a markdown rewrite block"
     },
     {
       "name": "Unified report format used",
-      "max_score": 20,
+      "max_score": 10,
       "description": "The output contains '## Doc Sync Report' as the top-level heading"
     }
   ]

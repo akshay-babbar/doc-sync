@@ -14,8 +14,8 @@
     },
     {
       "name": "Undocumented internal symbol skipped",
-      "max_score": 50,
-      "description": "The report does NOT attempt to document _internal_flush — it is skipped or ignored because it lacks prior documentation"
+      "max_score": 45,
+      "description": "The report does NOT attempt to document _internal_flush \u2014 it is skipped or ignored because it lacks prior documentation"
     }
   ]
 }

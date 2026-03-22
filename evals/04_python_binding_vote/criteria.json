@@ -4,17 +4,17 @@
   "checklist": [
     {
       "name": "Stale docstring updated",
-      "max_score": 50,
+      "max_score": 35,
       "description": "The validate_input docstring is updated to say 'four conditions' instead of 'three conditions' to match the new validation logic"
     },
     {
       "name": "Body-only change detected",
       "max_score": 30,
-      "description": "The report does NOT say 'No documentation changes are needed' or 'No caller-visible contract changes detected' — it recognizes the body-only semantic drift"
+      "description": "The report does NOT say 'No documentation changes are needed' or 'No caller-visible contract changes detected' \u2014 it recognizes the body-only semantic drift"
     },
     {
       "name": "Unified report format used",
-      "max_score": 20,
+      "max_score": 10,
       "description": "The output contains '## Doc Sync Report' as the top-level heading"
     }
   ]

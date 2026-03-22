@@ -10,17 +10,17 @@
     {
       "name": "YARD style preserved",
       "max_score": 25,
-      "description": "The added documentation uses `# @param encoding [String]` format (with the type annotation in square brackets) — NOT Python or JSDoc format"
+      "description": "The added documentation uses `# @param encoding [String]` format (with the type annotation in square brackets) \u2014 NOT Python or JSDoc format"
     },
     {
       "name": "Existing params untouched",
-      "max_score": 20,
+      "max_score": 45,
       "description": "The existing `# @param value [String]` line is unchanged in lib/processor.rb"
     },
     {
       "name": "Return section untouched",
-      "max_score": 15,
-      "description": "The `# @return [String]` line is unchanged — only the new parameter was added"
+      "max_score": 45,
+      "description": "The `# @return [String]` line is unchanged \u2014 only the new parameter was added"
     },
     {
       "name": "Unified report format",

@@ -4,17 +4,17 @@
   "checklist": [
     {
       "name": "No duplicate parameter entry",
-      "max_score": 40,
+      "max_score": 45,
       "description": "src/cache.py contains exactly one region parameter line in the Args section"
     },
     {
       "name": "Already current reported",
-      "max_score": 35,
+      "max_score": 45,
       "description": "doc-sync-report.md contains 'Already current' or a clear skip/no-op entry for fetch because the docstring already matches the signature"
     },
     {
       "name": "Unified report format",
-      "max_score": 15,
+      "max_score": 10,
       "description": "doc-sync-report.md contains '## Doc Sync Report' as a top-level heading"
     },
     {

@@ -4,6 +4,9 @@
   "dependencies": {
     "akshay-babbar/doc-sync": {
       "source": "file:."
+    },
+    "tessl-labs/tessl-skill-eval-scenarios": {
+      "version": "0.1.0"
     }
   }
 }

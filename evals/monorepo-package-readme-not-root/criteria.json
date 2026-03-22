@@ -4,17 +4,17 @@
   "checklist": [
     {
       "name": "verify_token docstring updated",
-      "max_score": 40,
+      "max_score": 30,
       "description": "packages/auth/auth.py docstring documents the new expiry_seconds parameter"
     },
     {
       "name": "Package README proposal made",
-      "max_score": 50,
-      "description": "doc-sync-report.md contains a Proposed entry referencing packages/auth/README.md — NOT root README.md"
+      "max_score": 35,
+      "description": "doc-sync-report.md contains a Proposed entry referencing packages/auth/README.md \u2014 NOT root README.md"
     },
     {
       "name": "Root README not touched",
-      "max_score": 40,
+      "max_score": 55,
       "description": "Root README.md is unchanged and not mentioned in proposals"
     },
     {

@@ -89,6 +89,7 @@ See **SKILL.md § Ownership Rule** for the canonical definition. In summary:
 1. **Mechanical check (always run first):** Does the docstring contain a specific number or quantitative claim (e.g., "validates three conditions", "returns three fields", "retries up to 5 times") that is now falsified by the new code? If yes → update.
 2. **Semantic fallback (only if mechanical check is inconclusive):** Does the docstring description contradict the new behavior? If it does, update. If the docstring is generic (e.g., "Connects to host") and still accurate, skip.
 3. **When in doubt:** Skip. A false negative here (not catching a stale docstring) is recoverable; a false positive (rewriting an accurate docstring incorrectly) is worse.
+4. **Contradictory docs:** If a docstring and a README entry describe the same symbol with contradictory information, flag as `[NEEDS HUMAN REVIEW]` and note the discrepancy in the report. Do not silently pick one source over the other.
 
 **The binding vote principle**: past documentation is a binding vote on importance.
 A 1-line change in a documented function is in scope. A 1-line change in an
@@ -124,14 +125,21 @@ Result: `HAS_DOCSTRING=true` or `HAS_DOCSTRING=false`
 
 ### Check 2: README Coverage (Code Span Match)
 
-Search all markdown files for the symbol name inside backtick code spans:
+Before searching for README candidate sections, exclude these files entirely — do not grep them, do not include them in CANDIDATE_SECTIONS under any circumstance:
+- CHANGELOG.md, CHANGELOG.rst, HISTORY.md
+- Any file matching ADR-*.md or decisions/*.md
+- CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md, LICENSE*, .github/*.md
+
+If a grep match is found in any of these files, silently discard it. Do not include it in proposals. Do not flag it. Do not mention it in the report.
+
+Search markdown files for the symbol name inside backtick code spans:
 
 ```bash
 # Step A: Find markdown files that mention the symbol IN CODE SPANS (backticks)
 # This is the false-positive reduction filter — require backticks or table formatting
-grep -rln '\`fn_name\`' *.md docs/ README.md 2>/dev/null || true
+grep -rln --include='*.md' --exclude='CHANGELOG.md' --exclude='CHANGELOG.rst' --exclude='HISTORY.md' --exclude='ADR-*.md' --exclude='CONTRIBUTING.md' --exclude='CODE_OF_CONDUCT.md' --exclude='SECURITY.md' --exclude='LICENSE*' --exclude-dir='.github' --exclude-dir='decisions' '\`fn_name\`' . 2>/dev/null || true
 # Fallback: also check table cells with pipe delimiters
-grep -rln '| *fn_name *|\|| *\`fn_name\` *|' *.md docs/ README.md 2>/dev/null || true
+grep -rln --include='*.md' --exclude='CHANGELOG.md' --exclude='CHANGELOG.rst' --exclude='HISTORY.md' --exclude='ADR-*.md' --exclude='CONTRIBUTING.md' --exclude='CODE_OF_CONDUCT.md' --exclude='SECURITY.md' --exclude='LICENSE*' --exclude-dir='.github' --exclude-dir='decisions' '| *fn_name *|\|| *\`fn_name\` *|' . 2>/dev/null || true
 
 # Step B: For each match, extract surrounding heading context
 grep -n '\`fn_name\`' README.md | head -5
@@ -207,12 +215,6 @@ Example:
         timeout: Connection timeout in seconds. Defaults to 30.
 ```
 
-Rules for the marker:
-- **Do not add** any internal workflow marker to descriptions the skill writes from scratch
-- **Do not add** any internal workflow marker to descriptions that already existed
-  and were merely preserved or extended with a known-safe change (e.g., only the default value changed)
-- Keep the report human-readable and free of implementation tags
-
 Match existing style exactly. Only change the affected parameter or return:
 
 ```python
@@ -243,6 +245,8 @@ Rules:
 - Do not reformat the entire docstring
 
 ### 3b. Propose README Updates
+
+Creating a new README entry for a symbol that has no existing README mention is ALWAYS propose-first. It is never auto-written even if the symbol has a docstring. The ownership rule for markdown is absolute: no markdown file is ever written without explicit user approval, including cases where no prior mention exists.
 
 For each candidate section found in Step 2.5 Check 2, generate a proposed
 patch in diff format. Only apply markdown edits with explicit user approval.

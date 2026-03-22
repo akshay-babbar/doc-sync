@@ -4,22 +4,22 @@
   "checklist": [
     {
       "name": "Apply mode declared",
-      "max_score": 20,
+      "max_score": 12,
       "description": "doc-sync-report.md contains 'Mode: apply'"
     },
     {
       "name": "Report shown before confirmation",
-      "max_score": 35,
+      "max_score": 15,
       "description": "doc-sync-report.md contains '## Doc Sync Report' and later includes an explicit confirmation prompt such as 'Apply this change? (yes/no)' or 'Found N changes. Apply all (A)'"
     },
     {
       "name": "Numbered entries available for confirmation",
-      "max_score": 25,
+      "max_score": 12,
       "description": "The Updated/Would Update and Proposed sections use numbered entries so the user can reference them in the confirmation step"
     },
     {
       "name": "Change identified",
-      "max_score": 20,
+      "max_score": 30,
       "description": "The report identifies format_currency as needing a docstring update for the new locale parameter"
     }
   ]

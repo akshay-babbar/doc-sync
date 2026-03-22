@@ -15,14 +15,7 @@ license: Apache-2.0
 metadata:
   version: "3.0.0"
   author: doc-sync
-allowed-tools: Read Edit Grep Bash(bash "${CLAUDE_SKILL_DIR}/scripts":*)
-argument-hint: "[--dry-run | --apply] [commit-range]"
-hooks:
-  PreToolUse:
-    - matcher: "Edit|Write"
-      hooks:
-        - type: command
-          command: "bash \"${CLAUDE_SKILL_DIR}/scripts/block_markdown_writes.sh\""
+allowed-tools: Read Edit Grep Bash
 ---
 
 # Doc Sync
@@ -37,6 +30,7 @@ caller-visible contract changes. Conservative by design: flag more, change less.
 - `/doc-sync --apply HEAD~3..HEAD` — specify commit range
 
 Arguments are available as `$ARGUMENTS`. Default to dry-run when empty.
+Arguments: [--dry-run | --apply] [commit-range]
 
 ## Workflow
 
@@ -86,6 +80,7 @@ No coverage found              → report-only
 
 Docstrings are symbol-local and unambiguous — safe to auto-write.
 README content is human-authored territory — always require explicit user approval before applying edits.
+Protected files (CHANGELOG, ADRs, legal docs) are excluded from candidate section search entirely — not proposed, not flagged, not mentioned.
 
 See `references/scope-bounds.md` and `references/workflow-steps.md` Step 2.5.
 

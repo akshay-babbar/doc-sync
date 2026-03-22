@@ -1,35 +1,35 @@
 {
-  "context": "Tests whether the agent makes a minimal, surgical docstring edit — adding only the new timeout parameter documentation while leaving the Examples, Notes, See Also, Raises, and Returns sections completely untouched.",
+  "context": "Tests whether the agent makes a minimal, surgical docstring edit \u2014 adding only the new timeout parameter documentation while leaving the Examples, Notes, See Also, Raises, and Returns sections completely untouched.",
   "type": "weighted_checklist",
   "checklist": [
     {
       "name": "Timeout param documented",
-      "max_score": 20,
+      "max_score": 30,
       "description": "src/connection.py docstring Args section contains a line documenting the timeout parameter (e.g. 'timeout: Connection timeout in seconds.')"
     },
     {
       "name": "Examples section preserved",
-      "max_score": 20,
+      "max_score": 45,
       "description": "src/connection.py docstring still contains the exact Examples section with `>>> conn = connect(\"localhost\", 8080)` and `>>> conn.send(b\"ping\")` unchanged"
     },
     {
       "name": "Notes section preserved",
-      "max_score": 15,
+      "max_score": 45,
       "description": "src/connection.py docstring still contains 'Connections are not thread-safe. Use one connection per thread.' unchanged"
     },
     {
       "name": "See Also section preserved",
-      "max_score": 15,
+      "max_score": 45,
       "description": "src/connection.py docstring still contains the See Also section with disconnect and reconnect entries unchanged"
     },
     {
       "name": "Existing args untouched",
-      "max_score": 15,
-      "description": "The 'host' and 'port' Args entries in the docstring are unchanged — no reordering or reformatting occurred"
+      "max_score": 45,
+      "description": "The 'host' and 'port' Args entries in the docstring are unchanged \u2014 no reordering or reformatting occurred"
     },
     {
       "name": "Unified report format",
-      "max_score": 15,
+      "max_score": 10,
       "description": "doc-sync-report.md contains '## Doc Sync Report' as a top-level heading"
     }
   ]

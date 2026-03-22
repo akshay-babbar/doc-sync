@@ -1,25 +1,25 @@
 {
-  "context": "Tests whether the agent proceeds to check for body-only documentation drift even when scripts/get_diff.sh exits with code 1 (no signature changes found). The function signature is unchanged so the script reports nothing — but the body changed and the docstring is now stale (says 'two conditions' when there are now four).",
+  "context": "Tests whether the agent proceeds to check for body-only documentation drift even when scripts/get_diff.sh exits with code 1 (no signature changes found). The function signature is unchanged so the script reports nothing \u2014 but the body changed and the docstring is now stale (says 'two conditions' when there are now four).",
   "type": "weighted_checklist",
   "checklist": [
     {
       "name": "Stale docstring updated",
-      "max_score": 35,
+      "max_score": 30,
       "description": "src/validator.py docstring no longer says 'two conditions' OR the doc-sync-report.md shows it was updated to reflect the four validation conditions"
     },
     {
       "name": "Body-only drift detected",
       "max_score": 30,
-      "description": "doc-sync-report.md contains an entry for validate_password indicating a docstring update — the agent did NOT stop after seeing no contract changes"
+      "description": "doc-sync-report.md contains an entry for validate_password indicating a docstring update \u2014 the agent did NOT stop after seeing no contract changes"
     },
     {
       "name": "Not stopped at script exit",
-      "max_score": 20,
-      "description": "The report does NOT say 'No contract changes detected' as a final conclusion that stops processing — it proceeds to detect the body-only drift"
+      "max_score": 45,
+      "description": "The report does NOT say 'No contract changes detected' as a final conclusion that stops processing \u2014 it proceeds to detect the body-only drift"
     },
     {
       "name": "Unified report format",
-      "max_score": 15,
+      "max_score": 10,
       "description": "doc-sync-report.md contains '## Doc Sync Report' as a top-level heading"
     }
   ]

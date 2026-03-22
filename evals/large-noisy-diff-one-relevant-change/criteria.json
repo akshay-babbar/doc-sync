@@ -4,18 +4,18 @@
   "checklist": [
     {
       "name": "parse_config docstring updated",
-      "max_score": 50,
+      "max_score": 30,
       "description": "parse_config docstring includes documentation for the strict parameter"
     },
     {
       "name": "No false positives on other files",
-      "max_score": 60,
+      "max_score": 50,
       "description": "The report does NOT propose or update docs for any file other than the one containing parse_config"
     },
     {
       "name": "Noisy diff navigated correctly",
-      "max_score": 30,
-      "description": "The report identifies exactly 1 symbol as in-scope — not 0 (missed it) and not 2+ (false positives)"
+      "max_score": 45,
+      "description": "The report identifies exactly 1 symbol as in-scope \u2014 not 0 (missed it) and not 2+ (false positives)"
     },
     {
       "name": "Unified report format",
