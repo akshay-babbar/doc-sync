@@ -3,3 +3,4 @@ tests/tmp/
 tests/baseline_results.md
 
 *.tar.gz
+test_subject.py

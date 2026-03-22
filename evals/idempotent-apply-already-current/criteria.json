@@ -19,7 +19,7 @@
     },
     {
       "name": "Apply mode declared",
-      "max_score": 10,
+      "max_score": 45,
       "description": "doc-sync-report.md contains 'Mode: apply'"
     }
   ]

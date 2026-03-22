@@ -140,4 +140,4 @@ Generated documentation should regenerate automatically from updated sources.
 
 ---
 
-*This contract is versioned with the skill. Current version: 3.0.0*
+*This contract is versioned with the skill. Current version: 3.0.6*
