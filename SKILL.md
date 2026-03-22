@@ -86,6 +86,7 @@ No coverage found              → report-only
 
 Docstrings are symbol-local and unambiguous — safe to auto-write.
 README content is human-authored territory — always require explicit user approval before applying edits.
+Protected files (CHANGELOG, ADRs, legal docs) are excluded from candidate section search entirely — not proposed, not flagged, not mentioned.
 
 See `references/scope-bounds.md` and `references/workflow-steps.md` Step 2.5.
 

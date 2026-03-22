@@ -124,14 +124,21 @@ Result: `HAS_DOCSTRING=true` or `HAS_DOCSTRING=false`
 
 ### Check 2: README Coverage (Code Span Match)
 
-Search all markdown files for the symbol name inside backtick code spans:
+Before searching for README candidate sections, exclude these files entirely — do not grep them, do not include them in CANDIDATE_SECTIONS under any circumstance:
+- CHANGELOG.md, CHANGELOG.rst, HISTORY.md
+- Any file matching ADR-*.md or decisions/*.md
+- CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md, LICENSE*, .github/*.md
+
+If a grep match is found in any of these files, silently discard it. Do not include it in proposals. Do not flag it. Do not mention it in the report.
+
+Search markdown files for the symbol name inside backtick code spans:
 
 ```bash
 # Step A: Find markdown files that mention the symbol IN CODE SPANS (backticks)
 # This is the false-positive reduction filter — require backticks or table formatting
-grep -rln '\`fn_name\`' *.md docs/ README.md 2>/dev/null || true
+grep -rln --include='*.md' --exclude='CHANGELOG.md' --exclude='CHANGELOG.rst' --exclude='HISTORY.md' --exclude='ADR-*.md' --exclude='CONTRIBUTING.md' --exclude='CODE_OF_CONDUCT.md' --exclude='SECURITY.md' --exclude='LICENSE*' --exclude-dir='.github' --exclude-dir='decisions' '\`fn_name\`' . 2>/dev/null || true
 # Fallback: also check table cells with pipe delimiters
-grep -rln '| *fn_name *|\|| *\`fn_name\` *|' *.md docs/ README.md 2>/dev/null || true
+grep -rln --include='*.md' --exclude='CHANGELOG.md' --exclude='CHANGELOG.rst' --exclude='HISTORY.md' --exclude='ADR-*.md' --exclude='CONTRIBUTING.md' --exclude='CODE_OF_CONDUCT.md' --exclude='SECURITY.md' --exclude='LICENSE*' --exclude-dir='.github' --exclude-dir='decisions' '| *fn_name *|\|| *\`fn_name\` *|' . 2>/dev/null || true
 
 # Step B: For each match, extract surrounding heading context
 grep -n '\`fn_name\`' README.md | head -5
@@ -237,6 +244,8 @@ Rules:
 - Do not reformat the entire docstring
 
 ### 3b. Propose README Updates
+
+Creating a new README entry for a symbol that has no existing README mention is ALWAYS propose-first. It is never auto-written even if the symbol has a docstring. The ownership rule for markdown is absolute: no markdown file is ever written without explicit user approval, including cases where no prior mention exists.
 
 For each candidate section found in Step 2.5 Check 2, generate a proposed
 patch in diff format. Only apply markdown edits with explicit user approval.
