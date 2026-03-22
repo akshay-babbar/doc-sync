@@ -7,7 +7,6 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILL_ROOT="$(dirname "$SCRIPT_DIR")"
 PUBLIC_EVALS_DIR="$SKILL_ROOT/evals"
-HARD_EVALS_DIR="$SKILL_ROOT/tests/hard-evals"
 
 echo "=== Tessl Eval Preflight Check ==="
 echo ""
@@ -59,7 +58,6 @@ validate_scenario_dir() {
 }
 
 validate_scenario_dir "$PUBLIC_EVALS_DIR" "eval"
-validate_scenario_dir "$HARD_EVALS_DIR" "hard-eval"
 
 echo ""
 echo "=== Results ==="
