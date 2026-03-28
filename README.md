@@ -1,19 +1,75 @@
 # doc-sync
+
 [![doc-sync](https://img.shields.io/endpoint?url=https%3A%2F%2Fapi.tessl.io%2Fv1%2Fbadges%2Fakshay-babbar%2Fdoc-sync)](https://tessl.io/registry/akshay-babbar/doc-sync)
 
-An agentic skill for Claude Code, Windsurf, Cursor, and OpenCode that
-auto-syncs docstrings and README when your code changes. When a function
+Auto-sync docstrings and README when your code changes. When a function
 signature changes, `doc-sync` finds every stale doc and proposes surgical
 patches — dry-run first, writes only on your approval.
 
+## How It Works
+
 ```mermaid
-flowchart LR
-    A[You change code] --> B[doc-sync detects\ncontract change]
-    B --> C{Has docstring\nor README mention?}
-    C -->|Yes| D[Proposes patch\nDry-run report]
-    C -->|No| E[Reports missing\ncoverage only]
-    D --> F[You approve]
-    F --> G[Docstring auto-written\nREADME propose-first]
+flowchart TB
+    subgraph Input["Your Changes"]
+        A[Code change detected]
+    end
+
+    subgraph Detection["Detection Layer"]
+        B[get_diff.sh<br/>Signature analysis]
+        B --> C{Contract changed?}
+    end
+
+    subgraph Classification["Classification Layer"]
+        C -->|Yes| D{Has existing<br/>documentation?}
+        C -->|No| E[Check body-only<br/>semantic drift]
+        E --> F{Docstring now<br/>inaccurate?}
+    end
+
+    subgraph Actions["Action Layer"]
+        D -->|Docstring| G[Auto-write<br/>in --apply mode]
+        D -->|README mention| H[Propose patch<br/>Human approval required]
+        D -->|No docs| I[Report missing<br/>coverage]
+        F -->|Yes| G
+        F -->|No| J[Report: Already current]
+    end
+
+    subgraph Output["Result"]
+        G --> K[Updated docstring]
+        H --> L[Proposed README patch]
+        I --> M[Coverage report]
+        J --> N[No action needed]
+    end
+
+    A --> B
+```
+
+## What Gets Updated
+
+| Location | Change Type | Behavior |
+|----------|-------------|----------|
+| **Docstrings** | Parameter/return changes | Auto-write in `--apply` mode |
+| **README sections** | Code span mentions | Propose-first, human approval required |
+| **Protected files** | CHANGELOG, ADRs, LICENSE | Never touched |
+
+## Quick Start
+
+### Install
+
+```bash
+npx tessl install akshay-babbar/doc-sync
+```
+
+### Usage
+
+```bash
+# Preview changes (default)
+/doc-sync --dry-run
+
+# Apply docstring updates
+/doc-sync --apply
+
+# Check committed changes
+/doc-sync --dry-run HEAD~3..HEAD
 ```
 
 ## Before / After
@@ -32,92 +88,82 @@ flowchart LR
 ```
 
 **README — proposed, never auto-applied:**
-```
+```diff
 - `fetch_user(user_id)` — fetches a user by ID.
 + `fetch_user(user_id, include_profile=False)` — fetches a user by ID.
 ```
 
-## Install
+## The Trust Model
 
-### Via Tessl (recommended)
-
-```bash
-npx tessl install akshay-babbar/doc-sync
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    YOUR DOCUMENTATION                        │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   DOCSTRINGS                    README / MARKDOWN           │
+│   ┌──────────────┐              ┌──────────────────┐        │
+│   │  Auto-write  │              │   Propose-first  │        │
+│   │  in --apply  │              │  Human approval  │        │
+│   └──────────────┘              └──────────────────┘        │
+│                                                             │
+│   PROTECTED FILES (never modified)                          │
+│   ┌────────────────────────────────────────────────┐        │
+│   │  CHANGELOG.md  │  ADR-*.md  │  LICENSE  │  SECURITY.md  │
+│   └────────────────────────────────────────────────┘        │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-> **Note:** Tessl installs the skill into all platform directories simultaneously
-> (`.claude/skills/`, `.cursor/skills/`, `.agents/skills/`, etc.) for cross-platform
-> compatibility. You still need the per-platform setup described below.
+## Language Support
 
-### Claude Code
+| Language | Functions | Classes | Private Methods |
+|----------|-----------|---------|-----------------|
+| Python | ✅ | ✅ | ✅ (if documented) |
+| TypeScript/JavaScript | ✅ | ✅ | ✅ (if documented) |
+| Go | ✅ | ✅ | ✅ (if documented) |
+| Rust | ✅ | ✅ | ✅ (if documented) |
+| Ruby | ✅ | ✅ | ✅ (if documented) |
+| Java/Kotlin | ✅ | ✅ | ✅ (if documented) |
 
-```bash
-# Invoke
-/doc-sync --dry-run    # preview — no writes
-/doc-sync --apply      # write with confirmation
-```
+## Post-Commit Hook (Optional)
 
-### Checking Committed Changes
+For automatic checks after every commit:
 
-By default, doc-sync checks uncommitted changes (working tree
-vs last commit). If your changes are already committed, specify
-a commit range:
-
-```bash
-/doc-sync --dry-run HEAD~1..HEAD    # check last commit
-/doc-sync --dry-run HEAD~3..HEAD    # check last 3 commits
-/doc-sync --apply HEAD~1..HEAD      # apply fixes for last commit
-```
-
-The markdown protection hook is pre-configured in `.claude/settings.json` and activates automatically when the skill is installed.
-
-> **Note:** If doc-sync appears twice in Claude Code's Skills panel, this is
-> expected — Tessl installs to both `.claude/skills/` and `.agents/skills/`
-> for cross-platform compatibility. Both entries point to the same skill and
-> behave identically. You can safely ignore the duplicate.
-
-For automatic invocation after every commit:
 ```bash
 # .git/hooks/post-commit
 #!/bin/bash
 claude -p "/doc-sync --dry-run"
 ```
+
 ```bash
 chmod +x .git/hooks/post-commit
 ```
 
-### Windsurf
+## Design Philosophy
 
-After running `tessl install`, doc-sync is automatically available in
-`.agents/skills/` — no manual setup needed. Windsurf reads skills from
-this directory automatically.
+| Principle | Implementation |
+|-----------|----------------|
+| **Conservative** | Flag more, change less. False positives over false negatives. |
+| **Transparent** | Every change explained, every skip documented. |
+| **Reversible** | Never auto-commits. `git checkout` always works. |
+| **Minimal** | One parameter change = one parameter doc updated. No "improvements." |
 
-### Cursor
+## What It Does NOT Do
 
-After running `tessl install`, doc-sync is automatically available in
-`.cursor/skills/` — no manual setup needed.
+- Generate new documentation from scratch
+- Update behavioral descriptions (performance, policy, security)
+- Modify examples, warnings, or notes
+- Touch CHANGELOGs or architectural decision records
+- Require AST parsers or external dependencies
 
-### OpenCode
+## Platform Compatibility
 
-```bash
-mkdir -p ~/.config/opencode/skills
-cp -r doc-sync ~/.config/opencode/skills/
-
-# Add to opencode.json for markdown protection
-{
-  "permission": {
-    "edit": { "*": "allow", "**/*.md": "ask", "**/*.mdx": "deny" }
-  }
-}
-```
-
-## How It Works
-
-- **Docstrings** → auto-written (symbol-local, unambiguous, safe)
-- **README mentions** → propose-first, never auto-applied
-- **Removed / renamed symbols** → flagged `[NEEDS HUMAN REVIEW]`, never deleted
-- **No existing docs** → reports missing coverage, creates nothing
-- No AST parsing · No dependencies · Pure shell + git diff
+| Platform | Status | Notes |
+|----------|--------|-------|
+| Claude Code | ✅ | Full support with hooks |
+| Windsurf | ✅ | Auto-loads from `.agents/skills/` |
+| Cursor | ✅ | Auto-loads from `.cursor/skills/` |
+| OpenCode | ✅ | Manual install to `~/.config/opencode/skills/` |
 
 ## License
 
