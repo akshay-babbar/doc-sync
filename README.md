@@ -2,77 +2,60 @@
 
 [![doc-sync](https://img.shields.io/endpoint?url=https%3A%2F%2Fapi.tessl.io%2Fv1%2Fbadges%2Fakshay-babbar%2Fdoc-sync)](https://tessl.io/registry/akshay-babbar/doc-sync)
 
-Auto-sync docstrings and README when your code changes. When a function
-signature changes, `doc-sync` finds every stale doc and proposes surgical
-patches — dry-run first, writes only on your approval.
+Auto-syncs docstrings when code changes. Proposes README updates — never auto-writes.
 
-## How It Works
+## The Mental Model
 
-```mermaid
-flowchart TB
-    subgraph Input["Your Changes"]
-        A[Code change detected]
-    end
+```
+CODE CHANGE ──► doc-sync ──► Docstring: auto-write (after you confirm)
+                              │
+                              └─► README: propose only (you decide)
+```
 
-    subgraph Detection["Detection Layer"]
-        B[get_diff.sh<br/>Signature analysis]
-        B --> C{Contract changed?}
-    end
+**One rule**: If documentation already exists for a symbol, keep it in sync. If not, report missing coverage — don't create from scratch.
 
-    subgraph Classification["Classification Layer"]
-        C -->|Yes| D{Has existing<br/>documentation?}
-        C -->|No| E[Check body-only<br/>semantic drift]
-        E --> F{Docstring now<br/>inaccurate?}
-    end
+## Quick Start
 
-    subgraph Actions["Action Layer"]
-        D -->|Docstring| G[Auto-write<br/>in --apply mode]
-        D -->|README mention| H[Propose patch<br/>Human approval required]
-        D -->|No docs| I[Report missing<br/>coverage]
-        F -->|Yes| G
-        F -->|No| J[Report: Already current]
-    end
+```bash
+# Install
+npx tessl install akshay-babbar/doc-sync
 
-    subgraph Output["Result"]
-        G --> K[Updated docstring]
-        H --> L[Proposed README patch]
-        I --> M[Coverage report]
-        J --> N[No action needed]
-    end
+# Preview what would change
+/doc-sync --dry-run
 
-    A --> B
+# Apply changes (asks for confirmation first)
+/doc-sync --apply
+
+# Check last 3 commits
+/doc-sync --dry-run HEAD~3..HEAD
 ```
 
 ## What Gets Updated
 
-| Location | Change Type | Behavior |
-|----------|-------------|----------|
-| **Docstrings** | Parameter/return changes | Auto-write in `--apply` mode |
-| **README sections** | Code span mentions | Propose-first, human approval required |
-| **Protected files** | CHANGELOG, ADRs, LICENSE | Never touched |
+| Target | Behavior |
+|--------|----------|
+| **Docstrings** | Auto-written after you confirm the report |
+| **README mentions** | Proposed only — never auto-applied |
+| **CHANGELOG / ADRs** | Never touched |
 
-## Quick Start
+## The Trust Model
 
-### Install
-
-```bash
-npx tessl install akshay-babbar/doc-sync
+```
+┌─────────────────────────────────────────────────┐
+│            YOUR DOCUMENTATION                    │
+├─────────────────────────────────────────────────┤
+│  DOCSTRINGS          │  README / MARKDOWN       │
+│  ───────────          │  ─────────────────       │
+│  Auto-write           │  Propose only            │
+│  (after confirm)      │  (you approve)           │
+├─────────────────────────────────────────────────┤
+│  PROTECTED: CHANGELOG, ADRs, LICENSE, SECURITY  │
+│  ─────────────────────────────────────────────  │
+│  Never modified. Period.                         │
+└─────────────────────────────────────────────────┘
 ```
 
-### Usage
-
-```bash
-# Preview changes (default)
-/doc-sync --dry-run
-
-# Apply docstring updates
-/doc-sync --apply
-
-# Check committed changes
-/doc-sync --dry-run HEAD~3..HEAD
-```
-
-## Before / After
+## Example
 
 **Code change:**
 ```diff
@@ -80,91 +63,39 @@ npx tessl install akshay-babbar/doc-sync
 + def fetch_user(user_id: int, include_profile: bool = False) -> User:
 ```
 
-**Docstring — auto-written:**
-```diff
-  Args:
-      user_id: The user's unique identifier.
-+     include_profile: Whether to include profile data. Defaults to False.
-```
+**What doc-sync does:**
+1. Detects the new parameter
+2. Finds the docstring for `fetch_user`
+3. Shows you: "Will add `include_profile` to docstring"
+4. After you confirm, adds:
+   ```diff
+     Args:
+         user_id: The user's unique identifier.
+   +     include_profile: Whether to include profile data. Defaults to False.
+   ```
 
-**README — proposed, never auto-applied:**
-```diff
-- `fetch_user(user_id)` — fetches a user by ID.
-+ `fetch_user(user_id, include_profile=False)` — fetches a user by ID.
-```
+## Supported Languages
 
-## The Trust Model
+Python, TypeScript/JavaScript, Go, Rust, Ruby, Java, Kotlin
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    YOUR DOCUMENTATION                        │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│   DOCSTRINGS                    README / MARKDOWN           │
-│   ┌──────────────┐              ┌──────────────────┐        │
-│   │  Auto-write  │              │   Propose-first  │        │
-│   │  in --apply  │              │  Human approval  │        │
-│   └──────────────┘              └──────────────────┘        │
-│                                                             │
-│   PROTECTED FILES (never modified)                          │
-│   ┌────────────────────────────────────────────────┐        │
-│   │  CHANGELOG.md  │  ADR-*.md  │  LICENSE  │  SECURITY.md  │
-│   └────────────────────────────────────────────────┘        │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
+## Philosophy
 
-## Language Support
+| We do | We don't |
+|-------|----------|
+| Update existing docs | Create new docs from scratch |
+| Flag ambiguity | Guess and silently fix |
+| Ask before writing | Auto-commit changes |
+| Minimal surgical edits | "Improve" surrounding content |
 
-| Language | Functions | Classes | Private Methods |
-|----------|-----------|---------|-----------------|
-| Python | ✅ | ✅ | ✅ (if documented) |
-| TypeScript/JavaScript | ✅ | ✅ | ✅ (if documented) |
-| Go | ✅ | ✅ | ✅ (if documented) |
-| Rust | ✅ | ✅ | ✅ (if documented) |
-| Ruby | ✅ | ✅ | ✅ (if documented) |
-| Java/Kotlin | ✅ | ✅ | ✅ (if documented) |
+## Platforms
 
-## Post-Commit Hook (Optional)
+| Platform | Status |
+|----------|--------|
+| Claude Code | ✅ |
+| Windsurf | ✅ |
+| Cursor | ✅ |
+| OpenCode | ✅ |
 
-For automatic checks after every commit:
+---
 
-```bash
-# .git/hooks/post-commit
-#!/bin/bash
-claude -p "/doc-sync --dry-run"
-```
-
-```bash
-chmod +x .git/hooks/post-commit
-```
-
-## Design Philosophy
-
-| Principle | Implementation |
-|-----------|----------------|
-| **Conservative** | Flag more, change less. False positives over false negatives. |
-| **Transparent** | Every change explained, every skip documented. |
-| **Reversible** | Never auto-commits. `git checkout` always works. |
-| **Minimal** | One parameter change = one parameter doc updated. No "improvements." |
-
-## What It Does NOT Do
-
-- Generate new documentation from scratch
-- Update behavioral descriptions (performance, policy, security)
-- Modify examples, warnings, or notes
-- Touch CHANGELOGs or architectural decision records
-- Require AST parsers or external dependencies
-
-## Platform Compatibility
-
-| Platform | Status | Notes |
-|----------|--------|-------|
-| Claude Code | ✅ | Full support with hooks |
-| Windsurf | ✅ | Auto-loads from `.agents/skills/` |
-| Cursor | ✅ | Auto-loads from `.cursor/skills/` |
-| OpenCode | ✅ | Manual install to `~/.config/opencode/skills/` |
-
-## License
-
-Apache 2.0
+**Why trust this tool?** See [TRUST.md](TRUST.md) for what we protect and why.
