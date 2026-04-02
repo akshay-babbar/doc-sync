@@ -23,20 +23,6 @@ allowed-tools: Read Edit Grep Bash
 Surgical documentation updater. Patches docs when a documented symbol's
 caller-visible contract changes. Conservative by design: flag more, change less.
 
-## Critical Stop Condition
-
-If get_diff.sh reports no contract changes AND Step 2.5 finds
-no body-only drift: output exactly this and stop:
-
-## Doc Sync Report
-Mode: dry-run
-
-### No Changes
-✓ No contract changes detected. Documentation is current.
-
-Do NOT create new documentation. Do NOT write README files.
-Do NOT summarize commits. Stop here.
-
 ## Invocation
 
 - `/doc-sync` or `/doc-sync --dry-run` — detect and report, **no file writes**
