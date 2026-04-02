@@ -29,7 +29,9 @@ Even when `--apply` is passed, the workflow is: detect → classify → build th
 ## Step 1: Detect Contract Changes
 
 ```bash
-bash scripts/get_diff.sh [--dry-run|--apply] [commit-range]
+SCRIPT=$(find "$(git rev-parse --show-toplevel)" -maxdepth 6 \
+  -name "get_diff.sh" -path "*/scripts/*" 2>/dev/null | head -1)
+bash "$SCRIPT" [--dry-run|--apply] [commit-range]
 # Default (no commit-range): git diff HEAD — all tracked uncommitted changes
 # Explicit range:            git diff HEAD~3..HEAD — last 3 commits
 # Before committing:         default captures your in-progress tracked work automatically
@@ -246,10 +248,15 @@ Rules:
 
 ### 3b. Propose README Updates
 
-Creating a new README entry for a symbol that has no existing README mention is ALWAYS propose-first. It is never auto-written even if the symbol has a docstring. The ownership rule for markdown is absolute: no markdown file is ever written without explicit user approval, including cases where no prior mention exists.
+Creating a new README entry is ALWAYS propose-first.
+NEVER write to any markdown file directly even with --apply.
+If you find yourself about to edit a .md file, stop and add
+it to the Proposed section instead. This is absolute.
 
-For each candidate section found in Step 2.5 Check 2, generate a proposed
-patch in diff format. Only apply markdown edits with explicit user approval.
+When a symbol is found in a README section via code span match or table cell:
+1. Identify the minimal line(s) to update.
+2. Generate a proposed patch (unified diff) that updates only those lines.
+Apply markdown edits with explicit user approval.
 
 ```markdown
 ### Proposed
@@ -269,6 +276,8 @@ See `references/verify-steps.md` for the 3-point checklist:
 Verification is **non-optional**. If a check fails, revert the edit and flag.
 
 ## Step 5: Report Results
+
+Every report — regardless of what was found or not found — MUST begin with ## Doc Sync Report as the top-level heading. This is non-negotiable and applies even when no changes are detected.
 
 **Unified format contract**: whether an entry was auto-written, proposed, flagged,
 or skipped, it always appears in the **same diff-style format**. This is non-negotiable

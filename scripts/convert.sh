@@ -73,6 +73,11 @@ If a previously documented symbol changed behavior without a signature change,
 update the docstring only when the existing documentation is now false or incomplete
 (for example, a docstring says `three conditions` and the implementation now checks four).
 
+**No-change stop rule (mandatory):**
+If `get_diff.sh` reports no contract changes AND Step 2.5 finds no body-only drift,
+emit the `## Doc Sync Report` with the `### No Changes` section and stop.
+Do not create documentation. Do not propose README changes. Do not summarize commits.
+
 **Confirmation checkpoint (mandatory):**
 Even when `--apply` is passed, the workflow is: detect → classify → build the
 complete Doc Sync Report → **show the report and ask for confirmation** → only
