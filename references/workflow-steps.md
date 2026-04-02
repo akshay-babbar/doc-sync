@@ -29,7 +29,7 @@ Even when `--apply` is passed, the workflow is: detect → classify → build th
 ## Step 1: Detect Contract Changes
 
 ```bash
-SCRIPT=$(find "$(git rev-parse --show-toplevel)" -maxdepth 4 \
+SCRIPT=$(find "$(git rev-parse --show-toplevel)" -maxdepth 6 \
   -name "get_diff.sh" -path "*/scripts/*" 2>/dev/null | head -1)
 bash "$SCRIPT" [--dry-run|--apply] [commit-range]
 # Default (no commit-range): git diff HEAD — all tracked uncommitted changes

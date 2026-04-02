@@ -56,6 +56,23 @@ fi
 # safety-critical behaviors MUST be present on prompt-based platforms.
 WORKFLOW_CRITICAL='## Apply-Mode Critical Rules (from workflow-steps.md)
 
+**Step 1: locate and run the detector script reliably:**
+```bash
+SCRIPT=$(find "$(git rev-parse --show-toplevel)" -maxdepth 6 \
+  -name "get_diff.sh" -path "*/scripts/*" 2>/dev/null | head -1)
+bash "$SCRIPT" [--dry-run|--apply] [commit-range]
+```
+
+**Exit code handling (mandatory):**
+If `get_diff.sh` exits 1 or prints `✓ No caller-visible contract changes detected.`,
+that is **not** a stop signal. Always continue to the documentation coverage and
+body-only drift checks in Step 2.5 before deciding there are no changes.
+
+**Body-only drift rule (mandatory):**
+If a previously documented symbol changed behavior without a signature change,
+update the docstring only when the existing documentation is now false or incomplete
+(for example, a docstring says `three conditions` and the implementation now checks four).
+
 **Confirmation checkpoint (mandatory):**
 Even when `--apply` is passed, the workflow is: detect → classify → build the
 complete Doc Sync Report → **show the report and ask for confirmation** → only
@@ -90,12 +107,12 @@ Mode: dry-run | apply
   ! Action needed
 
 ### No Changes
-✓ No contract changes detected.
+✓ No contract changes detected after Step 2.5 coverage and body-only drift checks.
 ```
 
 **Confirmation prompt (apply mode, after showing report):**
 - 1 change: `Apply this change? (yes/no)`
-- 2+ changes: `Found N changes. Apply all (A), select by number (1, 3...), or skip (S)?`'
+- 2+ changes: `Found N changes. Apply all (A), select by number (1, 3...), or skip (S)?`
 
 # Generate Cursor project rule (modern format)
 mkdir -p "$OUTPUT_DIR/.cursor/rules"
